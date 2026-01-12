@@ -4,7 +4,12 @@ import Sidebar from './components/Sidebar'
 import ChatWindow from './components/ChatWindow'
 import './App.css'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+// Em produção, usa a mesma URL do site. Em desenvolvimento, usa localhost
+const API_URL = import.meta.env.VITE_API_URL || (
+  import.meta.env.MODE === 'production'
+    ? window.location.origin
+    : 'http://localhost:3001'
+)
 const socket = io(API_URL)
 
 function App() {
