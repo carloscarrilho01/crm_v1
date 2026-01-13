@@ -307,9 +307,13 @@ io.on('connection', async (socket) => {
   });
 });
 
-// Serve React app for any other route (production)
+// Serve React app for any other route (production) - EXCETO rotas de API
 if (process.env.NODE_ENV === 'production') {
   app.get('*', (req, res) => {
+    // Não serve index.html para rotas de API
+    if (req.path.startsWith('/api/')) {
+      return res.status(404).json({ error: 'API endpoint não encontrado' });
+    }
     res.sendFile(path.join(__dirname, '../dist/index.html'));
   });
 }
