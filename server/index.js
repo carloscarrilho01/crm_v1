@@ -264,6 +264,7 @@ app.post('/api/conversations/:userId/send', async (req, res) => {
       };
 
       console.log('📤 Enviando webhook para n8n:', N8N_WEBHOOK_URL);
+      console.log('📦 Payload:', JSON.stringify(webhookPayload, null, 2));
 
       const webhookResponse = await fetch(N8N_WEBHOOK_URL, {
         method: 'POST',
@@ -273,13 +274,17 @@ app.post('/api/conversations/:userId/send', async (req, res) => {
         body: JSON.stringify(webhookPayload)
       });
 
+      const responseText = await webhookResponse.text();
+      console.log('📥 Resposta do webhook:', webhookResponse.status, responseText);
+
       if (webhookResponse.ok) {
         console.log('✅ Webhook enviado com sucesso para n8n');
       } else {
-        console.error('❌ Erro ao enviar webhook para n8n:', webhookResponse.status);
+        console.error('❌ Erro ao enviar webhook para n8n:', webhookResponse.status, responseText);
       }
     } catch (error) {
       console.error('❌ Erro ao enviar webhook para n8n:', error.message);
+      console.error('Stack trace:', error.stack);
     }
 
     res.json({ success: true, messageId: newMessage.timestamp });
