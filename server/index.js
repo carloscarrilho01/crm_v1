@@ -41,6 +41,12 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Log de todas as requisições para debug
+app.use((req, res, next) => {
+  console.log(`📍 ${req.method} ${req.path}`);
+  next();
+});
+
 // Conecta ao banco de dados
 let useDatabase = false;
 const conversations = new Map(); // Fallback para memória
