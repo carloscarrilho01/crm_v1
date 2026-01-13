@@ -1,0 +1,178 @@
+.btn-attach-file {
+  background: transparent;
+  border: none;
+  color: #8696a0;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.btn-attach-file:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #00a884;
+}
+
+.file-preview-container {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  background: #202c33;
+  border-top: 1px solid #2a3942;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 10;
+}
+
+.file-preview {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.image-preview {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.file-icon-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #2a3942;
+  border-radius: 8px;
+}
+
+.file-icon-preview svg {
+  color: #8696a0;
+  flex-shrink: 0;
+}
+
+.file-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.file-name {
+  color: #e9edef;
+  font-size: 14px;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.file-size {
+  color: #8696a0;
+  font-size: 12px;
+}
+
+.file-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-cancel-file,
+.btn-send-file {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.btn-cancel-file {
+  color: #e9edef;
+}
+
+.btn-cancel-file:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.btn-send-file {
+  color: #00a884;
+}
+
+.btn-send-file:hover {
+  background: rgba(0, 168, 132, 0.1);
+}
+
+/* Mensagens com arquivo */
+.message-file {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 250px;
+  max-width: 300px;
+}
+
+.message-file-image {
+  width: 100%;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.message-file-image:hover {
+  opacity: 0.9;
+}
+
+.message-file-document {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.message-file-document:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.message-file-document svg {
+  color: #e9edef;
+  flex-shrink: 0;
+}
+
+.message-file-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.message-file-name {
+  color: #e9edef;
+  font-size: 14px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.message-file-size {
+  color: rgba(233, 237, 239, 0.6);
+  font-size: 12px;
+}
+
+.message-file-download {
+  color: #00a884;
+  flex-shrink: 0;
+}

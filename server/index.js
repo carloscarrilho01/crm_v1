@@ -96,7 +96,16 @@ async function addMessage(userId, message) {
     const conversation = conversations.get(userId);
     if (conversation) {
       conversation.messages.push(message);
-      conversation.lastMessage = message.text;
+
+      // Define a mensagem de preview baseado no tipo
+      if (message.type === 'audio') {
+        conversation.lastMessage = '🎤 Áudio';
+      } else if (message.type === 'file') {
+        conversation.lastMessage = `📎 ${message.fileName || 'Arquivo'}`;
+      } else {
+        conversation.lastMessage = message.text;
+      }
+
       conversation.lastTimestamp = message.timestamp;
       conversations.set(userId, conversation);
     }
@@ -198,7 +207,7 @@ app.get('/api/conversations/:userId', async (req, res) => {
 app.post('/api/conversations/:userId/send', async (req, res) => {
   try {
     const { userId } = req.params;
-    const { message, type = 'text', duration } = req.body;
+    const { message, type = 'text', duration, fileName, fileSize, fileType, fileCategory } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: 'Mensagem é obrigatória' });
@@ -215,6 +224,11 @@ app.post('/api/conversations/:userId/send', async (req, res) => {
       type,
       duration,
       audioUrl: type === 'audio' ? message : undefined,
+      fileUrl: type === 'file' ? message : undefined,
+      fileName,
+      fileSize,
+      fileType,
+      fileCategory,
       isBot: false,
       isAgent: true,
       timestamp: new Date().toISOString()
@@ -239,6 +253,10 @@ app.post('/api/conversations/:userId/send', async (req, res) => {
         message,
         type,
         duration,
+        fileName,
+        fileSize,
+        fileType,
+        fileCategory,
         isAgent: true,
         messageId: Date.now().toString(),
         timestamp: newMessage.timestamp,

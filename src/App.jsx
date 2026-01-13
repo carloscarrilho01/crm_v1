@@ -77,13 +77,17 @@ function App() {
   const handleSendMessage = async (messageData) => {
     if (!selectedConversation) return
 
-    // Suporta tanto string quanto objeto { type, content, duration }
+    // Suporta tanto string quanto objeto { type, content, duration, fileName, etc }
     const payload = typeof messageData === 'string'
       ? { message: messageData, type: 'text' }
       : {
           message: messageData.content,
           type: messageData.type || 'text',
-          duration: messageData.duration
+          duration: messageData.duration,
+          fileName: messageData.fileName,
+          fileSize: messageData.fileSize,
+          fileType: messageData.fileType,
+          fileCategory: messageData.fileCategory
         }
 
     if (!payload.message || (payload.type === 'text' && !payload.message.trim())) return

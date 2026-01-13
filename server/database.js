@@ -139,10 +139,18 @@ export const ConversationDB = {
 
       const messages = [...conversation.messages, message];
 
+      // Define a mensagem de preview baseado no tipo
+      let lastMessage = message.text;
+      if (message.type === 'audio') {
+        lastMessage = '🎤 Áudio';
+      } else if (message.type === 'file') {
+        lastMessage = `📎 ${message.fileName || 'Arquivo'}`;
+      }
+
       return await this.createOrUpdate(userId, {
         ...conversation,
         messages,
-        lastMessage: message.text,
+        lastMessage,
         lastTimestamp: message.timestamp
       });
     } catch (error) {
