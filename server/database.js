@@ -425,7 +425,7 @@ export const LeadDB = {
       if (error) throw error;
 
       return data.map(row => ({
-        uuid: row.uuid,
+        uuid: row.id,
         telefone: row.telefone,
         nome: row.nome,
         email: row.email,
@@ -446,7 +446,7 @@ export const LeadDB = {
       const { data, error } = await supabase
         .from('leads')
         .select('*')
-        .eq('uuid', uuid)
+        .eq('id', uuid)
         .single();
 
       if (error) {
@@ -455,7 +455,7 @@ export const LeadDB = {
       }
 
       return {
-        uuid: data.uuid,
+        uuid: data.id,
         telefone: data.telefone,
         nome: data.nome,
         email: data.email,
@@ -486,7 +486,7 @@ export const LeadDB = {
       // Se o identificador parece ser um UUID (tem hífens e letras), busca por uuid
       if (identifier.includes('-') && /[a-f]/.test(String(identifier).toLowerCase())) {
         console.log('🔍 Buscando por UUID');
-        query = query.eq('uuid', identifier);
+        query = query.eq('id', identifier);
       } else {
         // Caso contrário, busca por telefone
         console.log('🔍 Buscando por telefone');
@@ -509,7 +509,7 @@ export const LeadDB = {
         // Lista todos os leads para debug
         const { data: allLeads } = await supabase
           .from('leads')
-          .select('uuid, telefone, nome')
+          .select('id, telefone, nome')
           .limit(10);
         console.log('📋 Primeiros leads no banco:', allLeads);
 
@@ -522,7 +522,7 @@ export const LeadDB = {
       const { data, error } = await supabase
         .from('leads')
         .update({ status })
-        .eq('uuid', existingLead.uuid)
+        .eq('id', existingLead.id)
         .select()
         .single();
 
@@ -534,7 +534,7 @@ export const LeadDB = {
       console.log('✅ Status atualizado com sucesso:', data);
 
       return {
-        uuid: data.uuid,
+        uuid: data.id,
         telefone: data.telefone,
         nome: data.nome,
         email: data.email,
