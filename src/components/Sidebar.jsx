@@ -2,7 +2,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import './Sidebar.css'
 
-function Sidebar({ conversations, selectedConversation, onSelectConversation, loading }) {
+function Sidebar({ conversations, selectedConversation, onSelectConversation, loading, onNewConversation }) {
   const formatTime = (timestamp) => {
     try {
       return formatDistanceToNow(new Date(timestamp), {
@@ -17,11 +17,15 @@ function Sidebar({ conversations, selectedConversation, onSelectConversation, lo
   return (
     <div className="sidebar">
       <div className="sidebar-header">
-        <h2>n8n Chat Dashboard</h2>
+        <h2>IA Conversa</h2>
         <div className="sidebar-header-actions">
-          <button className="icon-button" title="Atualizar">
+          <button
+            className="icon-button new-conversation-btn"
+            onClick={onNewConversation}
+            title="Nova Conversa"
+          >
             <svg viewBox="0 0 24 24" width="24" height="24">
-              <path fill="currentColor" d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" />
+              <path fill="currentColor" d="M20,2H4A2,2 0 0,0 2,4V22L6,18H20A2,2 0 0,0 22,16V4A2,2 0 0,0 20,2M11,13H9V11H7V9H9V7H11V9H13V11H11V13Z" />
             </svg>
           </button>
         </div>

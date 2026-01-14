@@ -349,6 +349,58 @@ app.post('/api/quick-messages/reorder', async (req, res) => {
 // ENDPOINTS PARA CONVERSAS
 // ============================================
 
+// POST /api/conversations/new - Criar nova conversa
+app.post('/api/conversations/new', async (req, res) => {
+  try {
+    const { userId, userName, initialMessage } = req.body;
+
+    if (!userId || !userName) {
+      return res.status(400).json({ error: 'userId e userName são obrigatórios' });
+    }
+
+    // Verifica se já existe uma conversa com este userId
+    const existingConversation = await getConversation(userId);
+    if (existingConversation) {
+      return res.status(409).json({ error: 'Já existe uma conversa com este usuário' });
+    }
+
+    // Cria nova conversa
+    const newConversation = {
+      userId,
+      userName,
+      messages: [],
+      lastMessage: initialMessage || 'Conversa iniciada',
+      lastTimestamp: new Date().toISOString(),
+      unread: 0
+    };
+
+    // Se há mensagem inicial, adiciona como primeira mensagem do bot/agente
+    if (initialMessage) {
+      newConversation.messages.push({
+        text: initialMessage,
+        type: 'text',
+        isBot: true,
+        isAgent: true,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Salva a conversa
+    await saveConversation(userId, newConversation);
+
+    // Emite via WebSocket para todos os clientes
+    io.emit('message', {
+      userId,
+      conversation: newConversation
+    });
+
+    res.status(201).json(newConversation);
+  } catch (error) {
+    console.error('Erro ao criar nova conversa:', error);
+    res.status(500).json({ error: 'Erro ao criar nova conversa' });
+  }
+});
+
 // Endpoint para enviar mensagem (intervenção manual)
 app.post('/api/conversations/:userId/send', async (req, res) => {
   try {

@@ -52,6 +52,17 @@
   transform: scale(0.95);
 }
 
+.new-conversation-btn {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+}
+
+.new-conversation-btn:hover {
+  background: var(--accent-hover);
+  color: var(--bg-primary);
+  box-shadow: 0 2px 8px rgba(224, 224, 224, 0.3);
+}
+
 .sidebar-search {
   padding: 12px;
   background: var(--bg-secondary);

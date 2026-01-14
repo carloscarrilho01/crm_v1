@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { io } from 'socket.io-client'
 import Sidebar from './components/Sidebar'
 import ChatWindow from './components/ChatWindow'
+import NewConversationModal from './components/NewConversationModal'
 import './App.css'
 
 // Em produção, usa a mesma URL do site. Em desenvolvimento, usa localhost
@@ -19,6 +20,7 @@ function App() {
   const [conversations, setConversations] = useState([])
   const [selectedConversation, setSelectedConversation] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [showNewConversationModal, setShowNewConversationModal] = useState(false)
 
   // Carrega conversas iniciais
   useEffect(() => {
@@ -126,18 +128,38 @@ function App() {
     }
   }
 
+  const handleNewConversation = () => {
+    setShowNewConversationModal(true)
+  }
+
+  const handleConversationCreated = (newConversation) => {
+    // Adiciona a nova conversa na lista
+    setConversations(prev => [newConversation, ...prev])
+
+    // Seleciona automaticamente a nova conversa
+    setSelectedConversation(newConversation)
+  }
+
   return (
     <div className="app">
       <Sidebar
         conversations={conversations}
         selectedConversation={selectedConversation}
         onSelectConversation={handleSelectConversation}
+        onNewConversation={handleNewConversation}
         loading={loading}
       />
       <ChatWindow
         conversation={selectedConversation}
         onSendMessage={handleSendMessage}
       />
+
+      {showNewConversationModal && (
+        <NewConversationModal
+          onClose={() => setShowNewConversationModal(false)}
+          onConversationCreated={handleConversationCreated}
+        />
+      )}
     </div>
   )
 }
