@@ -2,7 +2,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #0b141a;
+  background: var(--bg-primary);
   position: relative;
 }
 
@@ -29,7 +29,7 @@
 
 .chat-empty-content {
   text-align: center;
-  color: #667781;
+  color: var(--text-muted);
 }
 
 .empty-icon {
@@ -40,19 +40,19 @@
 .chat-empty-content h2 {
   font-size: 32px;
   font-weight: 300;
-  color: #e9edef;
+  color: var(--text-primary);
   margin-bottom: 16px;
 }
 
 .chat-empty-content p {
   font-size: 14px;
-  color: #8696a0;
+  color: var(--text-secondary);
 }
 
 .chat-header {
-  background: #202c33;
+  background: var(--bg-tertiary);
   padding: 10px 16px;
-  border-bottom: 1px solid #2a3942;
+  border-bottom: 1px solid var(--bg-hover);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -69,7 +69,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #667781;
+  background: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -80,13 +80,13 @@
 .chat-header-info h3 {
   font-size: 16px;
   font-weight: 400;
-  color: #e9edef;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .user-id {
   font-size: 13px;
-  color: #667781;
+  color: var(--text-muted);
 }
 
 .chat-messages {
@@ -129,12 +129,12 @@
 }
 
 .message.user .message-bubble {
-  background: #202c33;
+  background: var(--bg-tertiary);
   border-bottom-left-radius: 2px;
 }
 
 .message.bot .message-bubble {
-  background: #005c4b;
+  background: var(--msg-out-bg);
   border-bottom-right-radius: 2px;
 }
 
@@ -144,7 +144,7 @@
 }
 
 .message-text {
-  color: #e9edef;
+  color: var(--text-primary);
   font-size: 14px;
   line-height: 1.5;
   margin-bottom: 4px;
@@ -165,9 +165,9 @@
 
 .chat-input {
   position: relative;
-  background: #202c33;
+  background: var(--bg-tertiary);
   padding: 10px 16px;
-  border-top: 1px solid #2a3942;
+  border-top: 1px solid var(--bg-hover);
   z-index: 2;
 }
 
@@ -175,7 +175,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #2a3942;
+  background: var(--bg-hover);
   border-radius: 8px;
   padding: 8px 12px;
 }
@@ -184,20 +184,20 @@
   flex: 1;
   background: transparent;
   border: none;
-  color: #e9edef;
+  color: var(--text-primary);
   font-size: 15px;
   outline: none;
   padding: 8px;
 }
 
 .message-input::placeholder {
-  color: #667781;
+  color: var(--text-muted);
 }
 
 .send-button {
   background: transparent;
   border: none;
-  color: #8696a0;
+  color: var(--text-secondary);
   cursor: pointer;
   padding: 8px;
   display: flex;
@@ -217,5 +217,5 @@
 }
 
 .send-button:not(:disabled) {
-  color: #00a884;
+  color: var(--accent-primary);
 }
