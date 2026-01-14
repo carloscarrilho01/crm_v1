@@ -1,7 +1,7 @@
 .btn-record-audio {
   background: transparent;
   border: none;
-  color: #8696a0;
+  color: var(--text-secondary);
   cursor: pointer;
   padding: 8px;
   display: flex;
@@ -13,7 +13,7 @@
 
 .btn-record-audio:hover {
   background: rgba(255, 255, 255, 0.05);
-  color: #00a884;
+  color: var(--accent-primary);
 }
 
 .audio-recording {
@@ -21,7 +21,7 @@
   align-items: center;
   gap: 12px;
   padding: 8px 12px;
-  background: #2a3942;
+  background: var(--bg-hover);
   border-radius: 24px;
 }
 
@@ -51,7 +51,7 @@
 }
 
 .recording-time {
-  color: #e9edef;
+  color: var(--text-primary);
   font-size: 14px;
   font-weight: 500;
   min-width: 40px;
@@ -61,7 +61,7 @@
 .btn-cancel-recording {
   background: transparent;
   border: none;
-  color: #e9edef;
+  color: var(--text-primary);
   cursor: pointer;
   padding: 8px;
   display: flex;
@@ -72,11 +72,11 @@
 }
 
 .btn-stop-recording {
-  color: #00a884;
+  color: var(--accent-primary);
 }
 
 .btn-stop-recording:hover {
-  background: rgba(0, 168, 132, 0.1);
+  background: rgba(224, 224, 224, 0.1);
 }
 
 .btn-cancel-recording:hover {
@@ -88,7 +88,7 @@
   align-items: center;
   gap: 12px;
   padding: 8px 12px;
-  background: #2a3942;
+  background: var(--bg-hover);
   border-radius: 24px;
   flex: 1;
 }
@@ -100,11 +100,11 @@
 }
 
 .audio-player::-webkit-media-controls-panel {
-  background: #2a3942;
+  background: var(--bg-hover);
 }
 
 .audio-duration {
-  color: #8696a0;
+  color: var(--text-secondary);
   font-size: 12px;
 }
 
@@ -127,7 +127,7 @@
 }
 
 .btn-cancel {
-  color: #e9edef;
+  color: var(--text-primary);
 }
 
 .btn-cancel:hover {
@@ -135,11 +135,11 @@
 }
 
 .btn-send-audio {
-  color: #00a884;
+  color: var(--accent-primary);
 }
 
 .btn-send-audio:hover {
-  background: rgba(0, 168, 132, 0.1);
+  background: rgba(224, 224, 224, 0.1);
 }
 
 /* Componente de mensagem de áudio */
@@ -160,10 +160,10 @@
 }
 
 .message.user .audio-message-player::-webkit-media-controls-panel {
-  background: #202c33;
+  background: var(--bg-tertiary);
 }
 
 .message.bot .audio-message-player::-webkit-media-controls-panel,
 .message.agent .audio-message-player::-webkit-media-controls-panel {
-  background: #005c4b;
+  background: var(--msg-agent-bg);
 }

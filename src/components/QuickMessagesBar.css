@@ -1,6 +1,6 @@
 .quick-messages-bar {
-  background: #f8f9fa;
-  border-bottom: 1px solid #e0e0e0;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
   padding: 8px 12px;
   max-height: 120px;
   overflow-y: auto;
@@ -10,7 +10,7 @@
 .quick-messages-bar.empty {
   text-align: center;
   padding: 12px;
-  color: #666;
+  color: var(--text-muted);
   font-size: 13px;
 }
 
@@ -26,11 +26,11 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: #fff;
-  border: 1px solid #d0d0d0;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   font-size: 13px;
-  color: #333;
+  color: var(--text-primary);
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
@@ -38,11 +38,11 @@
 }
 
 .quick-message-btn:hover {
-  background: #25d366;
-  color: #fff;
-  border-color: #25d366;
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  border-color: var(--accent-primary);
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(37, 211, 102, 0.3);
+  box-shadow: 0 2px 4px rgba(224, 224, 224, 0.3);
 }
 
 .quick-message-emoji {
@@ -60,12 +60,12 @@
   width: 32px;
   height: 32px;
   padding: 0;
-  background: #fff;
-  border: 1px solid #d0d0d0;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
   border-radius: 50%;
   font-size: 18px;
   font-weight: bold;
-  color: #666;
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -74,26 +74,26 @@
 }
 
 .quick-message-toggle-btn:hover {
-  background: #e8e8e8;
-  border-color: #b0b0b0;
+  background: var(--bg-tertiary);
+  border-color: var(--text-muted);
 }
 
 .quick-message-manage-btn {
   padding: 6px 12px;
-  background: #fff;
-  border: 1px solid #d0d0d0;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   font-size: 13px;
-  color: #666;
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
 }
 
 .quick-message-manage-btn:hover {
-  background: #e8e8e8;
-  border-color: #b0b0b0;
-  color: #333;
+  background: var(--bg-tertiary);
+  border-color: var(--text-muted);
+  color: var(--text-primary);
 }
 
 /* Scrollbar customizado */
@@ -102,15 +102,15 @@
 }
 
 .quick-messages-bar::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: transparent;
   border-radius: 3px;
 }
 
 .quick-messages-bar::-webkit-scrollbar-thumb {
-  background: #c0c0c0;
+  background: var(--bg-hover);
   border-radius: 3px;
 }
 
 .quick-messages-bar::-webkit-scrollbar-thumb:hover {
-  background: #a0a0a0;
+  background: var(--text-muted);
 }

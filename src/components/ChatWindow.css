@@ -139,7 +139,7 @@
 }
 
 .message.agent .message-bubble {
-  background: #016952;
+  background: var(--msg-agent-bg);
   border-bottom-right-radius: 2px;
 }
 
@@ -160,7 +160,7 @@
 }
 
 .message-check {
-  color: #53bdeb;
+  color: var(--accent-primary);
 }
 
 .chat-input {

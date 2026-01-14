@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13,14 +13,14 @@
 }
 
 .quick-messages-manager {
-  background: #fff;
+  background: var(--bg-secondary);
   border-radius: 12px;
   max-width: 1000px;
   width: 100%;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 40px var(--shadow);
 }
 
 .manager-header {
@@ -28,20 +28,20 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .manager-header h2 {
   margin: 0;
   font-size: 20px;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .close-btn {
   background: none;
   border: none;
   font-size: 32px;
-  color: #999;
+  color: var(--text-secondary);
   cursor: pointer;
   line-height: 1;
   padding: 0;
@@ -55,8 +55,8 @@
 }
 
 .close-btn:hover {
-  background: #f0f0f0;
-  color: #333;
+  background: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .manager-content {
@@ -78,7 +78,7 @@
 .manager-list-section h3 {
   margin: 0 0 16px 0;
   font-size: 16px;
-  color: #555;
+  color: var(--text-secondary);
   font-weight: 600;
 }
 
@@ -91,7 +91,7 @@
   margin-bottom: 6px;
   font-size: 13px;
   font-weight: 500;
-  color: #555;
+  color: var(--text-secondary);
 }
 
 .form-group input,
@@ -99,18 +99,20 @@
 .form-group select {
   width: 100%;
   padding: 10px;
-  border: 1px solid #d0d0d0;
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: 14px;
   font-family: inherit;
   transition: border-color 0.2s;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #25d366;
+  border-color: var(--accent-primary);
 }
 
 .form-group textarea {
@@ -135,8 +137,8 @@
 .emoji-option {
   width: 36px;
   height: 36px;
-  border: 1px solid #d0d0d0;
-  background: #fff;
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
   border-radius: 6px;
   cursor: pointer;
   font-size: 18px;
@@ -150,18 +152,18 @@
   width: auto;
   padding: 0 10px;
   font-size: 12px;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .emoji-option:hover,
 .emoji-clear-btn:hover {
-  border-color: #25d366;
-  background: #f0fff5;
+  border-color: var(--accent-primary);
+  background: var(--bg-hover);
 }
 
 .emoji-option.selected {
-  border-color: #25d366;
-  background: #25d366;
+  border-color: var(--accent-primary);
+  background: var(--accent-primary);
   transform: scale(1.1);
 }
 
@@ -184,24 +186,24 @@
 }
 
 .save-btn {
-  background: #25d366;
-  color: #fff;
+  background: var(--accent-primary);
+  color: var(--bg-primary);
 }
 
 .save-btn:hover {
-  background: #20bd5a;
+  background: var(--accent-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(37, 211, 102, 0.3);
+  box-shadow: 0 4px 8px rgba(224, 224, 224, 0.3);
 }
 
 .cancel-btn {
-  background: #f0f0f0;
-  color: #666;
+  background: var(--bg-hover);
+  color: var(--text-secondary);
 }
 
 .cancel-btn:hover {
-  background: #e0e0e0;
-  color: #333;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .quick-messages-grid {
@@ -214,8 +216,8 @@
 }
 
 .quick-message-item {
-  background: #f8f9fa;
-  border: 1px solid #e0e0e0;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 12px;
   transition: all 0.2s;
@@ -226,8 +228,8 @@
 }
 
 .quick-message-item:hover {
-  border-color: #c0c0c0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-color: var(--text-muted);
+  box-shadow: 0 2px 4px var(--shadow);
 }
 
 .qm-header {
@@ -243,8 +245,8 @@
 
 .qm-category {
   font-size: 11px;
-  background: #e0e0e0;
-  color: #666;
+  background: var(--bg-hover);
+  color: var(--text-secondary);
   padding: 2px 8px;
   border-radius: 10px;
   text-transform: uppercase;
@@ -272,7 +274,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: var(--text-muted);
   transition: 0.3s;
   border-radius: 24px;
 }
@@ -284,13 +286,13 @@
   width: 18px;
   left: 3px;
   bottom: 3px;
-  background-color: white;
+  background-color: var(--bg-primary);
   transition: 0.3s;
   border-radius: 50%;
 }
 
 .qm-toggle input:checked + .toggle-slider {
-  background-color: #25d366;
+  background-color: var(--accent-primary);
 }
 
 .qm-toggle input:checked + .toggle-slider:before {
@@ -300,15 +302,15 @@
 .qm-text {
   margin: 0 0 8px 0;
   font-size: 14px;
-  color: #333;
+  color: var(--text-primary);
   line-height: 1.4;
 }
 
 .qm-shortcut {
   display: inline-block;
   font-size: 11px;
-  background: #fff3cd;
-  color: #856404;
+  background: var(--warning);
+  color: var(--bg-primary);
   padding: 2px 6px;
   border-radius: 4px;
   font-family: 'Courier New', monospace;
@@ -334,33 +336,33 @@
 }
 
 .edit-btn {
-  background: #fff;
-  border: 1px solid #d0d0d0;
-  color: #555;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
 }
 
 .edit-btn:hover {
-  background: #25d366;
-  border-color: #25d366;
-  color: #fff;
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: var(--bg-primary);
 }
 
 .delete-btn {
-  background: #fff;
-  border: 1px solid #d0d0d0;
-  color: #dc3545;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
+  color: var(--error);
 }
 
 .delete-btn:hover {
-  background: #dc3545;
-  border-color: #dc3545;
+  background: var(--error);
+  border-color: var(--error);
   color: #fff;
 }
 
 .loading-text,
 .empty-text {
   text-align: center;
-  color: #999;
+  color: var(--text-muted);
   font-size: 14px;
   padding: 20px;
 }
@@ -371,17 +373,17 @@
 }
 
 .quick-messages-grid::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: transparent;
   border-radius: 3px;
 }
 
 .quick-messages-grid::-webkit-scrollbar-thumb {
-  background: #c0c0c0;
+  background: var(--bg-hover);
   border-radius: 3px;
 }
 
 .quick-messages-grid::-webkit-scrollbar-thumb:hover {
-  background: #a0a0a0;
+  background: var(--text-muted);
 }
 
 /* Responsivo */

@@ -1,7 +1,7 @@
 .btn-attach-file {
   background: transparent;
   border: none;
-  color: #8696a0;
+  color: var(--text-secondary);
   cursor: pointer;
   padding: 8px;
   display: flex;
@@ -13,7 +13,7 @@
 
 .btn-attach-file:hover {
   background: rgba(255, 255, 255, 0.05);
-  color: #00a884;
+  color: var(--accent-primary);
 }
 
 .file-preview-container {
@@ -21,8 +21,8 @@
   bottom: 100%;
   left: 0;
   right: 0;
-  background: #202c33;
-  border-top: 1px solid #2a3942;
+  background: var(--bg-tertiary);
+  border-top: 1px solid var(--border-color);
   padding: 16px;
   display: flex;
   align-items: center;
@@ -49,12 +49,12 @@
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background: #2a3942;
+  background: var(--bg-hover);
   border-radius: 8px;
 }
 
 .file-icon-preview svg {
-  color: #8696a0;
+  color: var(--text-secondary);
   flex-shrink: 0;
 }
 
@@ -65,14 +65,14 @@
 }
 
 .file-name {
-  color: #e9edef;
+  color: var(--text-primary);
   font-size: 14px;
   font-weight: 500;
   word-break: break-word;
 }
 
 .file-size {
-  color: #8696a0;
+  color: var(--text-secondary);
   font-size: 12px;
 }
 
@@ -95,7 +95,7 @@
 }
 
 .btn-cancel-file {
-  color: #e9edef;
+  color: var(--text-primary);
 }
 
 .btn-cancel-file:hover {
@@ -103,11 +103,11 @@
 }
 
 .btn-send-file {
-  color: #00a884;
+  color: var(--accent-primary);
 }
 
 .btn-send-file:hover {
-  background: rgba(0, 168, 132, 0.1);
+  background: rgba(224, 224, 224, 0.1);
 }
 
 /* Mensagens com arquivo */
@@ -146,7 +146,7 @@
 }
 
 .message-file-document svg {
-  color: #e9edef;
+  color: var(--text-primary);
   flex-shrink: 0;
 }
 
@@ -159,7 +159,7 @@
 }
 
 .message-file-name {
-  color: #e9edef;
+  color: var(--text-primary);
   font-size: 14px;
   font-weight: 500;
   overflow: hidden;
@@ -168,11 +168,11 @@
 }
 
 .message-file-size {
-  color: rgba(233, 237, 239, 0.6);
+  color: var(--text-secondary);
   font-size: 12px;
 }
 
 .message-file-download {
-  color: #00a884;
+  color: var(--accent-primary);
   flex-shrink: 0;
 }
