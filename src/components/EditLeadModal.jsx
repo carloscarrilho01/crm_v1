@@ -44,6 +44,11 @@ function EditLeadModal({ lead, onClose, onLeadUpdated, onLeadDeleted }) {
     try {
       const identifier = lead.uuid || lead.telefone
 
+      console.log('📤 Enviando atualização de lead')
+      console.log('📦 Lead original:', lead)
+      console.log('🔑 Identificador usado:', identifier)
+      console.log('📝 Dados do formulário:', formData)
+
       const response = await fetch(`${API_URL}/api/leads/${identifier}`, {
         method: 'PUT',
         headers: {
