@@ -11,9 +11,11 @@ const API_URL = import.meta.env.VITE_API_URL || (
 
 const COLUMNS = [
   { id: 'novo', title: 'Novo', color: '#6c757d' },
-  { id: 'contato', title: 'Em Contato', color: '#0dcaf0' },
-  { id: 'negociacao', title: 'Negociação', color: '#ffc107' },
-  { id: 'convertido', title: 'Convertido', color: '#198754' },
+  { id: 'agendado', title: 'Agendado', color: '#0dcaf0' },
+  { id: 'compareceu', title: 'Compareceu', color: '#17a2b8' },
+  { id: 'nao_compareceu', title: 'Não compareceu', color: '#fd7e14' },
+  { id: 'servico_finalizado', title: 'Serviço finalizado', color: '#20c997' },
+  { id: 'fechado', title: 'Fechado', color: '#198754' },
   { id: 'perdido', title: 'Perdido', color: '#dc3545' }
 ];
 
@@ -166,9 +168,9 @@ function KanbanBoard({ socket }) {
   const getStatistics = () => {
     const total = leads.length
     const emAndamento = leads.filter(lead =>
-      ['contato', 'negociacao'].includes(lead.status)
+      ['agendado', 'compareceu', 'servico_finalizado'].includes(lead.status)
     ).length
-    const fechados = leads.filter(lead => lead.status === 'convertido').length
+    const fechados = leads.filter(lead => lead.status === 'fechado').length
     const taxaConversao = total > 0 ? ((fechados / total) * 100).toFixed(1) : '0.0'
 
     return { total, emAndamento, fechados, taxaConversao }

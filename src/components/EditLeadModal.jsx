@@ -162,9 +162,11 @@ function EditLeadModal({ lead, onClose, onLeadUpdated, onLeadDeleted }) {
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
             >
               <option value="novo">Novo</option>
-              <option value="contato">Em Contato</option>
-              <option value="negociacao">Negociação</option>
-              <option value="convertido">Convertido</option>
+              <option value="agendado">Agendado</option>
+              <option value="compareceu">Compareceu</option>
+              <option value="nao_compareceu">Não compareceu</option>
+              <option value="servico_finalizado">Serviço finalizado</option>
+              <option value="fechado">Fechado</option>
               <option value="perdido">Perdido</option>
             </select>
           </div>
