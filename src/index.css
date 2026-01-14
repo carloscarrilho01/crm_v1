@@ -5,35 +5,35 @@
 }
 
 :root {
-  /* Cores principais - WhatsApp moderno */
-  --bg-primary: #0b141a;
-  --bg-secondary: #111b21;
-  --bg-tertiary: #202c33;
-  --bg-hover: #2a3942;
+  /* Cores principais - Tema escuro minimalista */
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #141414;
+  --bg-tertiary: #1e1e1e;
+  --bg-hover: #2a2a2a;
 
-  /* Cores de destaque */
-  --accent-primary: #00a884;
-  --accent-hover: #00c896;
-  --accent-active: #008f6f;
+  /* Cores de destaque - Tons de cinza com destaque sutil */
+  --accent-primary: #e0e0e0;
+  --accent-hover: #ffffff;
+  --accent-active: #b0b0b0;
 
   /* Cores de texto */
-  --text-primary: #e9edef;
-  --text-secondary: #8696a0;
-  --text-muted: #667781;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --text-muted: #6a6a6a;
 
   /* Cores de mensagens */
-  --msg-in-bg: #202c33;
-  --msg-out-bg: #005c4b;
-  --msg-agent-bg: #1e3a5f;
+  --msg-in-bg: #1e1e1e;
+  --msg-out-bg: #2a2a2a;
+  --msg-agent-bg: #252525;
 
   /* Bordas e sombras */
-  --border-color: #2a3942;
-  --shadow: rgba(0, 0, 0, 0.3);
+  --border-color: #2a2a2a;
+  --shadow: rgba(0, 0, 0, 0.5);
 
   /* Cores de status */
-  --success: #00a884;
-  --error: #ea4335;
-  --warning: #f9a825;
+  --success: #4ade80;
+  --error: #ef4444;
+  --warning: #f59e0b;
 }
 
 body {

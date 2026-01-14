@@ -160,13 +160,13 @@
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-hover));
+  background: linear-gradient(135deg, #3a3a3a, #505050);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   font-weight: 500;
-  box-shadow: 0 2px 8px rgba(0, 168, 132, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .conversation-info {
@@ -223,7 +223,7 @@
 }
 
 .unread-badge {
-  background: var(--accent-primary);
+  background: var(--text-primary);
   color: var(--bg-primary);
   font-size: 11px;
   font-weight: 700;
@@ -232,7 +232,7 @@
   min-width: 22px;
   text-align: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 4px rgba(0, 168, 132, 0.3);
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
   animation: pulse 2s ease-in-out infinite;
 }
 
