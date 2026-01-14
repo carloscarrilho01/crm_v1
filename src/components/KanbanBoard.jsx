@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import AddLeadModal from './AddLeadModal'
+import EditLeadModal from './EditLeadModal'
 import './KanbanBoard.css'
 
 const API_URL = import.meta.env.VITE_API_URL || (
@@ -21,6 +22,8 @@ function KanbanBoard({ socket }) {
   const [loading, setLoading] = useState(true)
   const [draggedLead, setDraggedLead] = useState(null)
   const [showAddLeadModal, setShowAddLeadModal] = useState(false)
+  const [showEditLeadModal, setShowEditLeadModal] = useState(false)
+  const [selectedLead, setSelectedLead] = useState(null)
 
   useEffect(() => {
     fetchLeads()
@@ -37,9 +40,14 @@ function KanbanBoard({ socket }) {
         setLeads(prev => [newLead, ...prev])
       })
 
+      socket.on('lead-deleted', ({ uuid }) => {
+        setLeads(prev => prev.filter(lead => lead.uuid !== uuid))
+      })
+
       return () => {
         socket.off('lead-updated')
         socket.off('lead-created')
+        socket.off('lead-deleted')
       }
     }
   }, [socket])
@@ -133,6 +141,25 @@ function KanbanBoard({ socket }) {
   const handleLeadCreated = (newLead) => {
     setLeads(prev => [newLead, ...prev])
     setShowAddLeadModal(false)
+  }
+
+  const handleLeadClick = (lead) => {
+    setSelectedLead(lead)
+    setShowEditLeadModal(true)
+  }
+
+  const handleLeadUpdated = (updatedLead) => {
+    setLeads(prev => prev.map(lead =>
+      lead.uuid === updatedLead.uuid ? updatedLead : lead
+    ))
+    setShowEditLeadModal(false)
+    setSelectedLead(null)
+  }
+
+  const handleLeadDeleted = (deletedLead) => {
+    setLeads(prev => prev.filter(lead => lead.uuid !== deletedLead.uuid))
+    setShowEditLeadModal(false)
+    setSelectedLead(null)
   }
 
   // Calcula estatísticas
@@ -248,6 +275,7 @@ function KanbanBoard({ socket }) {
                       className={`lead-card ${(draggedLead?.uuid || draggedLead?.telefone) === (lead.uuid || lead.telefone) ? 'dragging' : ''}`}
                       draggable
                       onDragStart={(e) => handleDragStart(e, lead)}
+                      onClick={() => handleLeadClick(lead)}
                     >
                       <div className="lead-card-header">
                         <div className="lead-name">
@@ -291,6 +319,18 @@ function KanbanBoard({ socket }) {
         <AddLeadModal
           onClose={() => setShowAddLeadModal(false)}
           onLeadCreated={handleLeadCreated}
+        />
+      )}
+
+      {showEditLeadModal && selectedLead && (
+        <EditLeadModal
+          lead={selectedLead}
+          onClose={() => {
+            setShowEditLeadModal(false)
+            setSelectedLead(null)
+          }}
+          onLeadUpdated={handleLeadUpdated}
+          onLeadDeleted={handleLeadDeleted}
         />
       )}
     </div>

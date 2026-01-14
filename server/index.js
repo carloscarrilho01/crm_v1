@@ -564,6 +564,71 @@ app.get('/api/leads/:uuid', async (req, res) => {
   }
 });
 
+// PUT /api/leads/:uuid - Atualiza um lead completo
+app.put('/api/leads/:uuid', async (req, res) => {
+  try {
+    const { uuid } = req.params;
+    const { nome, telefone, email, status } = req.body;
+
+    console.log('📥 Recebendo atualização de lead:', { uuid, nome, telefone, email, status });
+
+    if (!nome || !telefone) {
+      return res.status(400).json({ error: 'Nome e telefone são obrigatórios' });
+    }
+
+    const updatedLead = await LeadDB.update(uuid, { nome, telefone, email, status });
+
+    if (!updatedLead) {
+      console.error('❌ Lead não encontrado:', uuid);
+      return res.status(404).json({ error: 'Lead não encontrado' });
+    }
+
+    // Emite evento WebSocket para atualizar todos os clientes
+    io.emit('lead-updated', updatedLead);
+
+    console.log(`✅ Lead ${uuid} atualizado com sucesso`);
+
+    res.json(updatedLead);
+  } catch (error) {
+    console.error('❌ Erro ao atualizar lead:', error);
+    console.error('Stack trace:', error.stack);
+    res.status(500).json({
+      error: 'Erro ao atualizar lead',
+      details: error.message
+    });
+  }
+});
+
+// DELETE /api/leads/:uuid - Deleta um lead
+app.delete('/api/leads/:uuid', async (req, res) => {
+  try {
+    const { uuid } = req.params;
+
+    console.log('📥 Recebendo requisição de exclusão:', { uuid });
+
+    const success = await LeadDB.delete(uuid);
+
+    if (!success) {
+      console.error('❌ Lead não encontrado:', uuid);
+      return res.status(404).json({ error: 'Lead não encontrado' });
+    }
+
+    // Emite evento WebSocket para atualizar todos os clientes
+    io.emit('lead-deleted', { uuid });
+
+    console.log(`✅ Lead ${uuid} excluído com sucesso`);
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('❌ Erro ao excluir lead:', error);
+    console.error('Stack trace:', error.stack);
+    res.status(500).json({
+      error: 'Erro ao excluir lead',
+      details: error.message
+    });
+  }
+});
+
 // PUT /api/leads/:uuid/status - Atualiza o status de um lead
 app.put('/api/leads/:uuid/status', async (req, res) => {
   try {

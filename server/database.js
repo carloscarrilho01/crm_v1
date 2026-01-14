@@ -580,5 +580,110 @@ export const LeadDB = {
       console.error('Erro ao criar lead:', error);
       return null;
     }
+  },
+
+  async update(identifier, leadData) {
+    if (!isConnected) return null;
+
+    try {
+      console.log('🔍 Atualizando lead:', identifier);
+
+      // Limpa o telefone de caracteres especiais se for telefone
+      const cleanIdentifier = String(identifier).replace(/\D/g, '');
+
+      // Tenta buscar por UUID primeiro, depois por telefone
+      let query = supabase.from('leads').select('*');
+
+      // Se o identificador parece ser um UUID (tem hífens e letras), busca por uuid
+      if (identifier.includes('-') && /[a-f]/.test(String(identifier).toLowerCase())) {
+        console.log('🔍 Buscando por UUID');
+        query = query.eq('id', identifier);
+      } else {
+        // Caso contrário, busca por telefone
+        console.log('🔍 Buscando por telefone');
+        query = query.or(`telefone.eq.${identifier},telefone.eq.${cleanIdentifier}`);
+      }
+
+      const { data: existingLead, error: findError } = await query.maybeSingle();
+
+      if (findError || !existingLead) {
+        console.error('❌ Lead não encontrado');
+        return null;
+      }
+
+      const updateData = {
+        updated_at: new Date().toISOString()
+      };
+
+      if (leadData.nome !== undefined) updateData.nome = leadData.nome;
+      if (leadData.telefone !== undefined) updateData.telefone = leadData.telefone;
+      if (leadData.email !== undefined) updateData.email = leadData.email;
+      if (leadData.status !== undefined) updateData.status = leadData.status;
+
+      const { data, error } = await supabase
+        .from('leads')
+        .update(updateData)
+        .eq('id', existingLead.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return {
+        uuid: data.id,
+        telefone: data.telefone,
+        nome: data.nome,
+        email: data.email,
+        status: data.status || 'novo',
+        trava: data.trava || false,
+        createdAt: data.created_at
+      };
+    } catch (error) {
+      console.error('Erro ao atualizar lead:', error);
+      return null;
+    }
+  },
+
+  async delete(identifier) {
+    if (!isConnected) return false;
+
+    try {
+      console.log('🔍 Deletando lead:', identifier);
+
+      // Limpa o telefone de caracteres especiais se for telefone
+      const cleanIdentifier = String(identifier).replace(/\D/g, '');
+
+      // Tenta buscar por UUID primeiro, depois por telefone
+      let query = supabase.from('leads').select('*');
+
+      // Se o identificador parece ser um UUID (tem hífens e letras), busca por uuid
+      if (identifier.includes('-') && /[a-f]/.test(String(identifier).toLowerCase())) {
+        console.log('🔍 Buscando por UUID');
+        query = query.eq('id', identifier);
+      } else {
+        // Caso contrário, busca por telefone
+        console.log('🔍 Buscando por telefone');
+        query = query.or(`telefone.eq.${identifier},telefone.eq.${cleanIdentifier}`);
+      }
+
+      const { data: existingLead, error: findError } = await query.maybeSingle();
+
+      if (findError || !existingLead) {
+        console.error('❌ Lead não encontrado');
+        return false;
+      }
+
+      const { error } = await supabase
+        .from('leads')
+        .delete()
+        .eq('id', existingLead.id);
+
+      if (error) throw error;
+
+      return true;
+    } catch (error) {
+      console.error('Erro ao deletar lead:', error);
+      return false;
+    }
   }
 };

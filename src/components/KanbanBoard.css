@@ -187,6 +187,7 @@
   background: var(--bg-tertiary);
   border: 1px solid var(--bg-hover);
   border-radius: 8px;
+  cursor: pointer;
   padding: 12px;
   cursor: grab;
   transition: all 0.2s ease;
