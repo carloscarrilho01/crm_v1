@@ -12,7 +12,8 @@ function EditLeadModal({ lead, onClose, onLeadUpdated, onLeadDeleted }) {
     nome: '',
     telefone: '',
     email: '',
-    status: 'novo'
+    status: 'novo',
+    observacoes: ''
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -23,7 +24,8 @@ function EditLeadModal({ lead, onClose, onLeadUpdated, onLeadDeleted }) {
         nome: lead.nome || '',
         telefone: lead.telefone || '',
         email: lead.email || '',
-        status: lead.status || 'novo'
+        status: lead.status || 'novo',
+        observacoes: lead.observacoes || ''
       })
     }
   }, [lead])
@@ -156,6 +158,17 @@ function EditLeadModal({ lead, onClose, onLeadUpdated, onLeadDeleted }) {
               <option value="convertido">Convertido</option>
               <option value="perdido">Perdido</option>
             </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="observacoes">Observações / Comentários</label>
+            <textarea
+              id="observacoes"
+              value={formData.observacoes}
+              onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+              placeholder="Adicione observações, anotações ou comentários sobre este lead..."
+              rows="4"
+            />
           </div>
 
           <div className="modal-actions">

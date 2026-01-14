@@ -431,6 +431,7 @@ export const LeadDB = {
         email: row.email,
         status: row.status || 'novo',
         trava: row.trava || false,
+        observacoes: row.observacoes || '',
         createdAt: row.created_at
       }));
     } catch (error) {
@@ -461,6 +462,7 @@ export const LeadDB = {
         email: data.email,
         status: data.status || 'novo',
         trava: data.trava || false,
+        observacoes: data.observacoes || '',
         createdAt: data.created_at
       };
     } catch (error) {
@@ -540,6 +542,7 @@ export const LeadDB = {
         email: data.email,
         status: data.status || 'novo',
         trava: data.trava || false,
+        observacoes: data.observacoes || '',
         createdAt: data.created_at
       };
     } catch (error) {
@@ -560,7 +563,8 @@ export const LeadDB = {
           nome: leadData.nome,
           email: leadData.email || null,
           status: leadData.status || 'novo',
-          trava: false
+          trava: false,
+          observacoes: leadData.observacoes || ''
         })
         .select()
         .single();
@@ -574,6 +578,7 @@ export const LeadDB = {
         email: data.email,
         status: data.status || 'novo',
         trava: data.trava || false,
+        observacoes: data.observacoes || '',
         createdAt: data.created_at
       };
     } catch (error) {
@@ -619,6 +624,7 @@ export const LeadDB = {
       if (leadData.telefone !== undefined) updateData.telefone = leadData.telefone;
       if (leadData.email !== undefined) updateData.email = leadData.email;
       if (leadData.status !== undefined) updateData.status = leadData.status;
+      if (leadData.observacoes !== undefined) updateData.observacoes = leadData.observacoes;
 
       const { data, error } = await supabase
         .from('leads')
@@ -636,6 +642,7 @@ export const LeadDB = {
         email: data.email,
         status: data.status || 'novo',
         trava: data.trava || false,
+        observacoes: data.observacoes || '',
         createdAt: data.created_at
       };
     } catch (error) {

@@ -12,7 +12,8 @@ function AddLeadModal({ onClose, onLeadCreated }) {
     telefone: '',
     nome: '',
     email: '',
-    status: 'novo'
+    status: 'novo',
+    observacoes: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -51,7 +52,8 @@ function AddLeadModal({ onClose, onLeadCreated }) {
           telefone: formData.telefone.trim(),
           nome: formData.nome.trim(),
           email: formData.email.trim() || null,
-          status: formData.status
+          status: formData.status,
+          observacoes: formData.observacoes.trim() || ''
         })
       })
 
@@ -146,6 +148,19 @@ function AddLeadModal({ onClose, onLeadCreated }) {
               <option value="convertido">Convertido</option>
               <option value="perdido">Perdido</option>
             </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="observacoes">Observações / Comentários</label>
+            <textarea
+              id="observacoes"
+              name="observacoes"
+              value={formData.observacoes}
+              onChange={handleChange}
+              placeholder="Adicione observações, anotações ou comentários sobre este lead..."
+              rows="4"
+              disabled={isSubmitting}
+            />
           </div>
 
           {error && (

@@ -506,7 +506,7 @@ app.get('/api/leads', async (req, res) => {
 // POST /api/leads - Cria um novo lead
 app.post('/api/leads', async (req, res) => {
   try {
-    const { telefone, nome, email, status } = req.body;
+    const { telefone, nome, email, status, observacoes } = req.body;
 
     if (!telefone || !nome) {
       return res.status(400).json({ error: 'Telefone e nome são obrigatórios' });
@@ -528,7 +528,8 @@ app.post('/api/leads', async (req, res) => {
       telefone,
       nome,
       email: email || null,
-      status: status || 'novo'
+      status: status || 'novo',
+      observacoes: observacoes || ''
     });
 
     if (!newLead) {
@@ -568,15 +569,15 @@ app.get('/api/leads/:uuid', async (req, res) => {
 app.put('/api/leads/:uuid', async (req, res) => {
   try {
     const { uuid } = req.params;
-    const { nome, telefone, email, status } = req.body;
+    const { nome, telefone, email, status, observacoes } = req.body;
 
-    console.log('📥 Recebendo atualização de lead:', { uuid, nome, telefone, email, status });
+    console.log('📥 Recebendo atualização de lead:', { uuid, nome, telefone, email, status, observacoes });
 
     if (!nome || !telefone) {
       return res.status(400).json({ error: 'Nome e telefone são obrigatórios' });
     }
 
-    const updatedLead = await LeadDB.update(uuid, { nome, telefone, email, status });
+    const updatedLead = await LeadDB.update(uuid, { nome, telefone, email, status, observacoes });
 
     if (!updatedLead) {
       console.error('❌ Lead não encontrado:', uuid);
