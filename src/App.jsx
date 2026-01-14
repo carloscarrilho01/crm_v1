@@ -161,7 +161,7 @@ function App() {
           />
         </>
       ) : (
-        <>
+        <div className="crm-view">
           <div className="crm-nav">
             <button className="back-button" onClick={() => setCurrentView('chat')}>
               <svg viewBox="0 0 24 24" width="20" height="20">
@@ -171,7 +171,7 @@ function App() {
             </button>
           </div>
           <KanbanBoard socket={socket} />
-        </>
+        </div>
       )}
 
       {showNewConversationModal && (
