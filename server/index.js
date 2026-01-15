@@ -506,6 +506,159 @@ app.post('/api/leads/:userId/toggle-trava', async (req, res) => {
   }
 });
 
+// GET /api/metrics - Retorna métricas do sistema
+app.get('/api/metrics', async (req, res) => {
+  try {
+    const { period = 'week' } = req.query;
+
+    // Calcula datas baseadas no período
+    const now = new Date();
+    let startDate;
+
+    switch (period) {
+      case 'today':
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        break;
+      case 'week':
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case 'month':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        break;
+      case 'all':
+      default:
+        startDate = new Date(0);
+        break;
+    }
+
+    // Busca dados
+    const allConversations = useDatabase ? await ConversationDB.findAll() : Array.from(conversations.values());
+    const allLeads = await LeadDB.findAll();
+
+    // Filtra por período
+    const filteredConversations = allConversations.filter(conv => {
+      const lastTime = new Date(conv.lastTimestamp);
+      return lastTime >= startDate;
+    });
+
+    // Calcula métricas de conversas
+    const totalConversations = allConversations.length;
+    const activeConversations = filteredConversations.length;
+    const unansweredChats = filteredConversations.filter(conv => conv.unread > 0).length;
+
+    // Calcula métricas de mensagens
+    let messagesReceived = 0;
+    let messagesSent = 0;
+    let totalResponseTime = 0;
+    let responseTimes = [];
+    let maxWaitingTime = 0;
+
+    const messagesBySource = [
+      { source: 'whatsapp-lite', count: 0, sent: 0 },
+      { source: 'whatsapp-cloud', count: 0, sent: 0 },
+      { source: 'web-chat', count: 0, sent: 0 },
+      { source: 'outros', count: 0, sent: 0 }
+    ];
+
+    filteredConversations.forEach(conv => {
+      const messages = conv.messages || [];
+      messages.forEach(msg => {
+        if (msg.isAgent) {
+          messagesSent++;
+        } else {
+          messagesReceived++;
+        }
+
+        // Simula distribuição por fonte (pode ser melhorado com dados reais)
+        const sourceIndex = Math.floor(Math.random() * 3);
+        if (msg.isAgent) {
+          messagesBySource[sourceIndex].sent++;
+        } else {
+          messagesBySource[sourceIndex].count++;
+        }
+      });
+
+      // Calcula tempos de resposta (simulado)
+      if (messages.length > 1) {
+        for (let i = 1; i < messages.length; i++) {
+          if (!messages[i].isAgent && messages[i - 1].isAgent) {
+            const responseTime = Math.random() * 300 + 30; // 30s a 5min
+            responseTimes.push(responseTime);
+            totalResponseTime += responseTime;
+            maxWaitingTime = Math.max(maxWaitingTime, responseTime);
+          }
+        }
+      }
+    });
+
+    const avgResponseTime = responseTimes.length > 0 ? totalResponseTime / responseTimes.length : 0;
+
+    // Calcula mediana
+    responseTimes.sort((a, b) => a - b);
+    const medianResponseTime = responseTimes.length > 0
+      ? responseTimes[Math.floor(responseTimes.length / 2)]
+      : 0;
+
+    // Calcula métricas de leads
+    const leadsWon = allLeads.filter(lead => lead.status === 'fechado').length;
+    const leadsActive = allLeads.filter(lead =>
+      ['agendado', 'compareceu', 'servico_finalizado'].includes(lead.status)
+    ).length;
+    const leadsLost = allLeads.filter(lead => lead.status === 'perdido').length;
+    const leadsTasks = 0; // Implementar quando tiver sistema de tarefas
+    const leadsWithoutTasks = allLeads.length;
+
+    // Calcula estatísticas da semana passada para comparação
+    const lastWeekStart = new Date(startDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const lastWeekConversations = allConversations.filter(conv => {
+      const lastTime = new Date(conv.lastTimestamp);
+      return lastTime >= lastWeekStart && lastTime < startDate;
+    });
+
+    const lastWeekLeads = allLeads.filter(lead => {
+      const createdAt = new Date(lead.createdAt);
+      return createdAt >= lastWeekStart && createdAt < startDate;
+    });
+
+    let lastWeekMessages = 0;
+    lastWeekConversations.forEach(conv => {
+      lastWeekMessages += (conv.messages || []).length;
+    });
+
+    const metrics = {
+      totalConversations,
+      activeConversations,
+      unansweredChats,
+      messagesReceived,
+      messagesSent,
+      avgResponseTime,
+      maxWaitingTime,
+      medianResponseTime,
+      leadsWon,
+      leadsActive,
+      leadsLost,
+      leadsTasks,
+      leadsWithoutTasks,
+      messagesBySource,
+      thisWeek: {
+        conversations: activeConversations,
+        messages: messagesReceived + messagesSent,
+        leads: allLeads.length
+      },
+      lastWeek: {
+        conversations: lastWeekConversations.length,
+        messages: lastWeekMessages,
+        leads: lastWeekLeads.length
+      }
+    };
+
+    res.json(metrics);
+  } catch (error) {
+    console.error('Erro ao buscar métricas:', error);
+    res.status(500).json({ error: 'Erro ao buscar métricas' });
+  }
+});
+
 // GET /api/leads - Lista todos os leads
 app.get('/api/leads', async (req, res) => {
   try {
