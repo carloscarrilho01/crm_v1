@@ -17,7 +17,8 @@
       "Bash(npm run build:*)",
       "Bash(timeout /t 5)",
       "Bash(if exist nul del nul)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(timeout /t 3)"
     ]
   }
 }
