@@ -335,6 +335,7 @@
     padding: 16px 12px;
     flex-direction: column;
     aspect-ratio: 1;
+    max-height: 140px;
     justify-content: space-between;
     text-align: center;
   }
@@ -371,6 +372,7 @@
 
   .stat-card {
     padding: 12px 10px;
+    max-height: 120px;
   }
 
   .stat-icon {
