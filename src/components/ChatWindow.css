@@ -351,3 +351,69 @@
     font-size: 14px;
   }
 }
+
+/* Ajustes para áudio em mobile */
+@media (max-width: 768px) {
+  /* Player de áudio nas mensagens */
+  .message-content audio {
+    max-width: 100%;
+    width: 200px;
+    height: 32px;
+  }
+
+  /* Input container quando está gravando áudio */
+  .input-container {
+    flex-wrap: nowrap;
+    padding: 6px 8px;
+    gap: 6px;
+  }
+
+  /* Ajusta tamanho dos botões de ação */
+  .send-button,
+  .input-container button {
+    padding: 6px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  /* Reduz padding do chat input em mobile */
+  .chat-input {
+    padding: 8px 12px;
+  }
+
+  /* Garante que o input de mensagem não quebre o layout */
+  .message-input {
+    min-width: 0;
+    padding: 6px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 375px) {
+  /* Ajustes mais agressivos para telas muito pequenas */
+  .message-content audio {
+    width: 180px;
+    height: 30px;
+  }
+
+  .input-container {
+    padding: 4px 6px;
+    gap: 4px;
+  }
+
+  .send-button,
+  .input-container button {
+    padding: 4px;
+    min-width: 32px;
+    min-height: 32px;
+  }
+
+  .chat-input {
+    padding: 6px 8px;
+  }
+
+  .message-input {
+    padding: 4px;
+    font-size: 13px;
+  }
+}
