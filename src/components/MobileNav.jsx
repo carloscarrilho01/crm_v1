@@ -29,6 +29,10 @@ function MobileNav({
 
   const handleSelectConversation = (conversation) => {
     onSelectConversation(conversation)
+    // Se não estiver na view de chat, navega para lá
+    if (currentView !== 'chat') {
+      onNavigate('chat')
+    }
     setIsMenuOpen(false)
   }
 
