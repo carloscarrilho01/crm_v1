@@ -136,10 +136,156 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
+/* Lista de Conversas Mobile */
+.mobile-conversations {
+  flex: 1;
+  overflow-y: auto;
+  background: #1e1e2e;
+}
+
+.mobile-conversations .loading,
+.mobile-conversations .empty-state {
+  padding: 60px 20px;
+  text-align: center;
+  color: #a0a0b0;
+}
+
+.mobile-conversations .empty-state p {
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: #fff;
+  font-weight: 500;
+}
+
+.mobile-conversations .empty-state small {
+  font-size: 13px;
+  color: #a0a0b0;
+}
+
+.mobile-conversations .conversation-item {
+  display: flex;
+  padding: 14px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #2d2d3d;
+  transition: all 0.2s ease;
+  gap: 12px;
+  position: relative;
+}
+
+.mobile-conversations .conversation-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #8a2be2;
+  transform: scaleY(0);
+  transition: transform 0.2s ease;
+}
+
+.mobile-conversations .conversation-item:hover {
+  background: #2d2d3d;
+}
+
+.mobile-conversations .conversation-item.active {
+  background: rgba(138, 43, 226, 0.1);
+}
+
+.mobile-conversations .conversation-item.active::before {
+  transform: scaleY(1);
+}
+
+.mobile-conversations .conversation-avatar {
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3a3a3a, #505050);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.mobile-conversations .conversation-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+}
+
+.mobile-conversations .conversation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-conversations .conversation-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.mobile-conversations .conversation-time {
+  font-size: 12px;
+  color: #a0a0b0;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+.mobile-conversations .conversation-item.active .conversation-time {
+  color: #8a2be2;
+}
+
+.mobile-conversations .conversation-preview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-conversations .last-message {
+  font-size: 14px;
+  color: #a0a0b0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.mobile-conversations .unread-badge {
+  background: #fff;
+  color: #1e1e2e;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+  min-width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+}
+
 /* Itens do Menu */
 .menu-items {
   flex: 1;
   padding: 16px;
+}
+
+.menu-divider {
+  height: 1px;
+  background: #2d2d3d;
+  margin: 8px 0;
 }
 
 .menu-item {

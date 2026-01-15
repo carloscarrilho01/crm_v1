@@ -179,6 +179,10 @@ function App() {
         onNavigate={setCurrentView}
         onNavigateToWhatsApp={() => setCurrentView('whatsapp')}
         onNewConversation={handleNewConversation}
+        conversations={conversations}
+        selectedConversation={selectedConversation}
+        onSelectConversation={handleSelectConversation}
+        loading={loading}
       />
 
       {currentView === 'chat' ? (
