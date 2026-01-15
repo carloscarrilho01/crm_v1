@@ -17,6 +17,8 @@ function WhatsAppConnection({ socket }) {
   const [newInstanceName, setNewInstanceName] = useState('')
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState('')
+  const [searchNumber, setSearchNumber] = useState('')
+  const [searching, setSearching] = useState(false)
 
   useEffect(() => {
     fetchInstances()
@@ -197,6 +199,49 @@ function WhatsAppConnection({ socket }) {
     }
   }
 
+  const searchByNumber = async () => {
+    if (!searchNumber.trim()) {
+      setError('Digite um número para buscar')
+      return
+    }
+
+    setSearching(true)
+    setError('')
+
+    try {
+      console.log(`🔍 Buscando por número: ${searchNumber}`)
+      const response = await fetch(`${API_URL}/api/whatsapp/find-by-number/${searchNumber}`)
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        setError(errorData.error || 'Nenhuma instância encontrada')
+        setSearching(false)
+        return
+      }
+
+      const data = await response.json()
+      console.log('✅ Instâncias encontradas:', data.instances)
+
+      if (data.instances && data.instances.length > 0) {
+        // Seleciona a primeira instância encontrada
+        const foundInstance = data.instances[0]
+        setSelectedInstance(foundInstance.name)
+
+        // Se não está conectada, busca o QR code
+        if (foundInstance.status !== 'open') {
+          connectInstance(foundInstance.name)
+        }
+
+        setError(`✅ Encontrada instância: ${foundInstance.name} (${foundInstance.phoneNumber})`)
+      }
+    } catch (error) {
+      console.error('❌ Erro ao buscar por número:', error)
+      setError('Erro ao buscar instância. Verifique o console.')
+    } finally {
+      setSearching(false)
+    }
+  }
+
   const getStatusBadge = (status) => {
     const statusMap = {
       'open': { label: 'Conectado', color: '#2ecc71' },
@@ -233,10 +278,43 @@ function WhatsAppConnection({ socket }) {
         </button>
       </div>
 
+      <div className="search-section">
+        <div className="search-box">
+          <svg viewBox="0 0 24 24" width="20" height="20" className="search-icon">
+            <path fill="currentColor" d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Buscar por número de WhatsApp (ex: 5511999999999)"
+            value={searchNumber}
+            onChange={(e) => setSearchNumber(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && searchByNumber()}
+          />
+          <button
+            className="btn-search"
+            onClick={searchByNumber}
+            disabled={searching || !searchNumber.trim()}
+          >
+            {searching ? (
+              <>
+                <div className="spinner-small"></div>
+                Buscando...
+              </>
+            ) : (
+              'Buscar'
+            )}
+          </button>
+        </div>
+      </div>
+
       {error && (
-        <div className="error-banner">
+        <div className={`message-banner ${error.startsWith('✅') ? 'success' : 'error'}`}>
           <svg viewBox="0 0 24 24" width="20" height="20">
-            <path fill="currentColor" d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" />
+            {error.startsWith('✅') ? (
+              <path fill="currentColor" d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z" />
+            ) : (
+              <path fill="currentColor" d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" />
+            )}
           </svg>
           {error}
           <button onClick={() => setError('')}>×</button>

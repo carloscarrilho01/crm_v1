@@ -1086,6 +1086,63 @@ app.get('/api/whatsapp/instance/:name/status', async (req, res) => {
   }
 });
 
+// GET /api/whatsapp/find-by-number/:number - Busca instância por número de telefone
+app.get('/api/whatsapp/find-by-number/:number', async (req, res) => {
+  try {
+    const { number } = req.params;
+
+    // Remove caracteres não numéricos do número
+    const cleanNumber = number.replace(/\D/g, '');
+    console.log(`🔍 Buscando instância com número: ${cleanNumber}`);
+
+    // Busca todas as instâncias
+    const instancesData = await evolutionApiRequest('/instance/fetchInstances');
+    const instances = Array.isArray(instancesData) ? instancesData : (instancesData.instances || []);
+
+    // Para cada instância, busca informações detalhadas
+    const instancesWithDetails = await Promise.all(
+      instances.map(async (instance) => {
+        try {
+          // Busca informações de conexão da instância
+          const connectionInfo = await evolutionApiRequest(`/instance/connectionState/${instance.name}`);
+
+          // Extrai o número do WhatsApp conectado (pode estar em diferentes formatos)
+          const phoneNumber = connectionInfo?.instance?.wuid?.split('@')[0] ||
+                             connectionInfo?.instance?.number ||
+                             connectionInfo?.number;
+
+          return {
+            ...instance,
+            phoneNumber,
+            connectionInfo
+          };
+        } catch (error) {
+          console.error(`Erro ao buscar detalhes da instância ${instance.name}:`, error.message);
+          return { ...instance, phoneNumber: null };
+        }
+      })
+    );
+
+    // Filtra instâncias que correspondem ao número buscado
+    const matchingInstances = instancesWithDetails.filter(inst =>
+      inst.phoneNumber && inst.phoneNumber.includes(cleanNumber)
+    );
+
+    if (matchingInstances.length === 0) {
+      return res.status(404).json({
+        error: 'Nenhuma instância encontrada com este número',
+        searchedNumber: cleanNumber
+      });
+    }
+
+    console.log(`✅ Encontradas ${matchingInstances.length} instância(s)`);
+    res.json({ instances: matchingInstances });
+  } catch (error) {
+    console.error('❌ Erro ao buscar instância por número:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // DELETE /api/whatsapp/instance/:name/logout - Desconecta instância
 app.delete('/api/whatsapp/instance/:name/logout', async (req, res) => {
   try {
