@@ -27,7 +27,10 @@ function KanbanBoard({ socket }) {
   const [showEditLeadModal, setShowEditLeadModal] = useState(false)
   const [selectedLead, setSelectedLead] = useState(null)
   const [touchStartY, setTouchStartY] = useState(null)
+  const [touchStartX, setTouchStartX] = useState(null)
   const [isDraggingTouch, setIsDraggingTouch] = useState(false)
+  const [currentTouchX, setCurrentTouchX] = useState(null)
+  const [currentTouchY, setCurrentTouchY] = useState(null)
 
   useEffect(() => {
     fetchLeads()
@@ -133,37 +136,73 @@ function KanbanBoard({ socket }) {
   const handleTouchStart = (e, lead) => {
     const touch = e.touches[0]
     setTouchStartY(touch.clientY)
+    setTouchStartX(touch.clientX)
     setDraggedLead(lead)
     setIsDraggingTouch(false)
   }
 
   const handleTouchMove = (e) => {
-    if (!draggedLead || !touchStartY) return
+    if (!draggedLead || touchStartY === null) return
 
     const touch = e.touches[0]
     const deltaY = Math.abs(touch.clientY - touchStartY)
+    const deltaX = Math.abs(touch.clientX - touchStartX)
 
-    // Só considera drag se mover mais de 10px
-    if (deltaY > 10) {
+    // Só considera drag se mover mais de 10px (vertical ou horizontal)
+    if (deltaY > 10 || deltaX > 10) {
       setIsDraggingTouch(true)
+      setCurrentTouchX(touch.clientX)
+      setCurrentTouchY(touch.clientY)
       e.preventDefault() // Previne scroll enquanto arrasta
     }
   }
 
-  const handleTouchEnd = async (e, newStatus) => {
+  const handleTouchEnd = async (e) => {
     if (!draggedLead || !isDraggingTouch) {
       // Se não estava arrastando, pode ser um click
       setDraggedLead(null)
       setIsDraggingTouch(false)
       setTouchStartY(null)
+      setTouchStartX(null)
+      setCurrentTouchX(null)
+      setCurrentTouchY(null)
       return
     }
+
+    // Detecta sobre qual coluna o toque terminou
+    const columns = document.querySelectorAll('.kanban-column')
+    let targetColumn = null
+
+    columns.forEach(column => {
+      const rect = column.getBoundingClientRect()
+      if (currentTouchX >= rect.left && currentTouchX <= rect.right &&
+          currentTouchY >= rect.top && currentTouchY <= rect.bottom) {
+        targetColumn = column
+      }
+    })
+
+    if (!targetColumn) {
+      // Não soltou sobre nenhuma coluna
+      setDraggedLead(null)
+      setIsDraggingTouch(false)
+      setTouchStartY(null)
+      setTouchStartX(null)
+      setCurrentTouchX(null)
+      setCurrentTouchY(null)
+      return
+    }
+
+    // Pega o status da coluna alvo
+    const newStatus = targetColumn.getAttribute('data-status')
 
     // Mesmo código do handleDrop
     if (draggedLead.status === newStatus) {
       setDraggedLead(null)
       setIsDraggingTouch(false)
       setTouchStartY(null)
+      setTouchStartX(null)
+      setCurrentTouchX(null)
+      setCurrentTouchY(null)
       return
     }
 
@@ -175,6 +214,9 @@ function KanbanBoard({ socket }) {
       setDraggedLead(null)
       setIsDraggingTouch(false)
       setTouchStartY(null)
+      setTouchStartX(null)
+      setCurrentTouchX(null)
+      setCurrentTouchY(null)
       return
     }
 
@@ -204,6 +246,9 @@ function KanbanBoard({ socket }) {
     setDraggedLead(null)
     setIsDraggingTouch(false)
     setTouchStartY(null)
+    setTouchStartX(null)
+    setCurrentTouchX(null)
+    setCurrentTouchY(null)
   }
 
   const getLeadsByStatus = (status) => {
@@ -336,10 +381,9 @@ function KanbanBoard({ socket }) {
             <div
               key={column.id}
               className="kanban-column"
+              data-status={column.id}
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, column.id)}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={(e) => handleTouchEnd(e, column.id)}
             >
               <div className="column-header" style={{ borderTopColor: column.color }}>
                 <h3>{column.title}</h3>
@@ -359,6 +403,8 @@ function KanbanBoard({ socket }) {
                       draggable
                       onDragStart={(e) => handleDragStart(e, lead)}
                       onTouchStart={(e) => handleTouchStart(e, lead)}
+                      onTouchMove={handleTouchMove}
+                      onTouchEnd={handleTouchEnd}
                       onClick={() => !isDraggingTouch && handleLeadClick(lead)}
                     >
                       <div className="lead-card-header">
