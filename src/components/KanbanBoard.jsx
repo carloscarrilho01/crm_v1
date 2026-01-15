@@ -26,6 +26,8 @@ function KanbanBoard({ socket }) {
   const [showAddLeadModal, setShowAddLeadModal] = useState(false)
   const [showEditLeadModal, setShowEditLeadModal] = useState(false)
   const [selectedLead, setSelectedLead] = useState(null)
+  const [touchStartY, setTouchStartY] = useState(null)
+  const [isDraggingTouch, setIsDraggingTouch] = useState(false)
 
   useEffect(() => {
     fetchLeads()
@@ -125,6 +127,83 @@ function KanbanBoard({ socket }) {
     }
 
     setDraggedLead(null)
+  }
+
+  // Touch handlers for mobile drag and drop
+  const handleTouchStart = (e, lead) => {
+    const touch = e.touches[0]
+    setTouchStartY(touch.clientY)
+    setDraggedLead(lead)
+    setIsDraggingTouch(false)
+  }
+
+  const handleTouchMove = (e) => {
+    if (!draggedLead || !touchStartY) return
+
+    const touch = e.touches[0]
+    const deltaY = Math.abs(touch.clientY - touchStartY)
+
+    // Só considera drag se mover mais de 10px
+    if (deltaY > 10) {
+      setIsDraggingTouch(true)
+      e.preventDefault() // Previne scroll enquanto arrasta
+    }
+  }
+
+  const handleTouchEnd = async (e, newStatus) => {
+    if (!draggedLead || !isDraggingTouch) {
+      // Se não estava arrastando, pode ser um click
+      setDraggedLead(null)
+      setIsDraggingTouch(false)
+      setTouchStartY(null)
+      return
+    }
+
+    // Mesmo código do handleDrop
+    if (draggedLead.status === newStatus) {
+      setDraggedLead(null)
+      setIsDraggingTouch(false)
+      setTouchStartY(null)
+      return
+    }
+
+    const identifier = draggedLead.uuid || draggedLead.telefone
+
+    if (!identifier) {
+      console.error('❌ Lead sem identificador:', draggedLead)
+      alert('Erro: Lead sem identificador válido')
+      setDraggedLead(null)
+      setIsDraggingTouch(false)
+      setTouchStartY(null)
+      return
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/api/leads/${identifier}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus })
+      })
+
+      if (response.ok) {
+        const updatedLead = await response.json()
+        setLeads(prev => prev.map(lead =>
+          (lead.uuid || lead.telefone) === identifier ? updatedLead : lead
+        ))
+      } else {
+        const errorData = await response.json()
+        alert(`Erro ao atualizar lead: ${errorData.error || 'Erro desconhecido'}`)
+      }
+    } catch (error) {
+      console.error('❌ Erro ao atualizar status do lead:', error)
+      alert(`Erro ao atualizar lead: ${error.message}`)
+    }
+
+    setDraggedLead(null)
+    setIsDraggingTouch(false)
+    setTouchStartY(null)
   }
 
   const getLeadsByStatus = (status) => {
@@ -259,6 +338,8 @@ function KanbanBoard({ socket }) {
               className="kanban-column"
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, column.id)}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={(e) => handleTouchEnd(e, column.id)}
             >
               <div className="column-header" style={{ borderTopColor: column.color }}>
                 <h3>{column.title}</h3>
@@ -277,7 +358,8 @@ function KanbanBoard({ socket }) {
                       className={`lead-card ${(draggedLead?.uuid || draggedLead?.telefone) === (lead.uuid || lead.telefone) ? 'dragging' : ''}`}
                       draggable
                       onDragStart={(e) => handleDragStart(e, lead)}
-                      onClick={() => handleLeadClick(lead)}
+                      onTouchStart={(e) => handleTouchStart(e, lead)}
+                      onClick={() => !isDraggingTouch && handleLeadClick(lead)}
                     >
                       <div className="lead-card-header">
                         <div className="lead-name">
