@@ -2,43 +2,20 @@ import { useState, useEffect } from 'react'
 import './SignatureManager.css'
 
 function SignatureManager({ onClose, onInsertSignature }) {
-  const [signature, setSignature] = useState({
-    nome: '',
-    cargo: '',
-    empresa: '',
-    telefone: '',
-    email: '',
-    site: ''
-  })
+  const [signature, setSignature] = useState('')
 
   useEffect(() => {
     // Carrega assinatura salva do localStorage
     const savedSignature = localStorage.getItem('messageSignature')
     if (savedSignature) {
-      setSignature(JSON.parse(savedSignature))
+      setSignature(savedSignature)
     }
   }, [])
 
   const handleSave = () => {
-    localStorage.setItem('messageSignature', JSON.stringify(signature))
-    const signatureText = generateSignatureText()
-    onInsertSignature(signatureText)
+    localStorage.setItem('messageSignature', signature)
+    onInsertSignature('\n\n' + signature)
     onClose()
-  }
-
-  const generateSignatureText = () => {
-    let text = '\n\n'
-    if (signature.nome) text += `*${signature.nome}*\n`
-    if (signature.cargo) text += `${signature.cargo}\n`
-    if (signature.empresa) text += `${signature.empresa}\n`
-    if (signature.telefone) text += `📱 ${signature.telefone}\n`
-    if (signature.email) text += `📧 ${signature.email}\n`
-    if (signature.site) text += `🌐 ${signature.site}`
-    return text
-  }
-
-  const handlePreview = () => {
-    return generateSignatureText()
   }
 
   return (
@@ -54,72 +31,16 @@ function SignatureManager({ onClose, onInsertSignature }) {
         </div>
 
         <div className="signature-modal-body">
-          <div className="signature-form">
+          <div className="signature-form-full">
             <div className="signature-form-group">
-              <label>Nome</label>
-              <input
-                type="text"
-                placeholder="Seu nome"
-                value={signature.nome}
-                onChange={(e) => setSignature({ ...signature, nome: e.target.value })}
+              <label>Assinatura</label>
+              <textarea
+                placeholder="Ex: Luiz, consigo te ajudar a resolver essa tela hoje ainda. Prefere entender valores ou agendar diagnóstico gratuito?"
+                value={signature}
+                onChange={(e) => setSignature(e.target.value)}
+                rows={6}
               />
-            </div>
-
-            <div className="signature-form-group">
-              <label>Cargo</label>
-              <input
-                type="text"
-                placeholder="Ex: Gerente de Vendas"
-                value={signature.cargo}
-                onChange={(e) => setSignature({ ...signature, cargo: e.target.value })}
-              />
-            </div>
-
-            <div className="signature-form-group">
-              <label>Empresa</label>
-              <input
-                type="text"
-                placeholder="Nome da empresa"
-                value={signature.empresa}
-                onChange={(e) => setSignature({ ...signature, empresa: e.target.value })}
-              />
-            </div>
-
-            <div className="signature-form-group">
-              <label>Telefone</label>
-              <input
-                type="text"
-                placeholder="(00) 00000-0000"
-                value={signature.telefone}
-                onChange={(e) => setSignature({ ...signature, telefone: e.target.value })}
-              />
-            </div>
-
-            <div className="signature-form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                placeholder="seu@email.com"
-                value={signature.email}
-                onChange={(e) => setSignature({ ...signature, email: e.target.value })}
-              />
-            </div>
-
-            <div className="signature-form-group">
-              <label>Site</label>
-              <input
-                type="text"
-                placeholder="www.seusite.com"
-                value={signature.site}
-                onChange={(e) => setSignature({ ...signature, site: e.target.value })}
-              />
-            </div>
-          </div>
-
-          <div className="signature-preview">
-            <h3>Pré-visualização</h3>
-            <div className="signature-preview-content">
-              {handlePreview()}
+              <span className="signature-char-count">{signature.length}/257</span>
             </div>
           </div>
         </div>

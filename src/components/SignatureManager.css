@@ -62,12 +62,9 @@
   padding: 24px;
   overflow-y: auto;
   flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
 }
 
-.signature-form {
+.signature-form-full {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -85,49 +82,36 @@
   color: var(--text-secondary);
 }
 
-.signature-form-group input {
-  padding: 10px 12px;
+.signature-form-group textarea {
+  padding: 12px;
   background: var(--bg-tertiary);
   border: 1px solid var(--bg-hover);
   border-radius: 6px;
   color: var(--text-primary);
   font-size: 14px;
+  line-height: 1.6;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  resize: vertical;
   transition: all 0.2s ease;
+  min-height: 120px;
 }
 
-.signature-form-group input:focus {
+.signature-form-group textarea:focus {
   outline: none;
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px rgba(224, 224, 224, 0.1);
 }
 
-.signature-form-group input::placeholder {
+.signature-form-group textarea::placeholder {
   color: var(--text-muted);
 }
 
-.signature-preview {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.signature-preview h3 {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.signature-preview-content {
-  background: var(--bg-tertiary);
-  border: 1px solid var(--bg-hover);
-  border-radius: 8px;
-  padding: 16px;
-  color: var(--text-primary);
-  font-size: 14px;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  min-height: 200px;
+.signature-char-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: right;
+  display: block;
+  margin-top: 4px;
 }
 
 .signature-modal-footer {
@@ -179,12 +163,15 @@
   }
 
   .signature-modal-body {
-    grid-template-columns: 1fr;
     padding: 20px;
   }
 
   .signature-modal-header,
   .signature-modal-footer {
     padding: 16px 20px;
+  }
+
+  .signature-form-group textarea {
+    font-size: 13px;
   }
 }
