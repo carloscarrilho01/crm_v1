@@ -1,7 +1,7 @@
 .analytics-container {
   height: 100%;
   overflow-y: auto;
-  background: var(--bg-primary);
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
   padding: 24px;
   color: var(--text-primary);
 }
@@ -53,7 +53,7 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: var(--bg-primary);
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
   color: #ffffff;
 }
 
@@ -70,11 +70,11 @@
 }
 
 .metric-card {
-  background: var(--bg-tertiary);
+  background: rgba(30, 60, 114, 0.6);
   backdrop-filter: blur(10px);
   border-radius: 10px;
   padding: 16px;
-  border: 1px solid var(--bg-hover);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -93,7 +93,7 @@
 .metric-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  border-color: var(--accent-primary);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .metric-card.primary {
