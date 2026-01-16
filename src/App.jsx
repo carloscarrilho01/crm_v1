@@ -30,21 +30,10 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [showNewConversationModal, setShowNewConversationModal] = useState(false)
 
-  // Mostra tela de login se não estiver autenticado
-  if (authLoading) {
-    return (
-      <div className="app-loading">
-        <div className="spinner-large"></div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return <Login onLogin={() => {}} />
-  }
-
-  // Carrega conversas iniciais
+  // Carrega conversas iniciais - só executa se usuário estiver autenticado
   useEffect(() => {
+    if (!user) return
+
     fetchConversations()
 
     // Escuta mensagens via WebSocket
@@ -71,7 +60,7 @@ function App() {
       socket.off('init')
       socket.off('message')
     }
-  }, [selectedConversation?.userId])
+  }, [user, selectedConversation?.userId])
 
   const fetchConversations = async () => {
     try {
@@ -185,6 +174,20 @@ function App() {
       console.error('Erro ao carregar mais mensagens:', error)
       return 0
     }
+  }
+
+  // Mostra tela de loading durante autenticação
+  if (authLoading) {
+    return (
+      <div className="app-loading">
+        <div className="spinner-large"></div>
+      </div>
+    )
+  }
+
+  // Mostra tela de login se não estiver autenticado
+  if (!user) {
+    return <Login onLogin={() => {}} />
   }
 
   return (
