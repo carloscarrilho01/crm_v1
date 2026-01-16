@@ -23,6 +23,7 @@ function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket })
   const [isTravado, setIsTravado] = useState(false)
   const [isTogglingTrava, setIsTogglingTrava] = useState(false)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [agentName, setAgentName] = useState('')
   const messagesEndRef = useRef(null)
   const messagesContainerRef = useRef(null)
 
@@ -33,6 +34,14 @@ function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket })
   useEffect(() => {
     scrollToBottom()
   }, [conversation?.messages])
+
+  // Carrega nome do agente do localStorage
+  useEffect(() => {
+    const savedName = localStorage.getItem('agentName')
+    if (savedName) {
+      setAgentName(savedName)
+    }
+  }, [])
 
   // Carrega status da trava quando a conversa muda
   useEffect(() => {
@@ -170,10 +179,6 @@ function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket })
     })
   }
 
-  const handleInsertSignature = (signatureText) => {
-    setMessage(prev => prev + signatureText)
-  }
-
   if (!conversation) {
     return (
       <div className="chat-window">
@@ -238,6 +243,9 @@ function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket })
               key={msg.id}
               className={`message ${msg.isBot ? 'bot' : msg.isAgent ? 'agent' : 'user'}`}
             >
+              {msg.isAgent && agentName && (
+                <div className="agent-name-label">{agentName}</div>
+              )}
               <div className="message-bubble">
                 {msg.type === 'audio' ? (
                   <CustomAudioPlayer
@@ -336,8 +344,14 @@ function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket })
 
       {showSignatureManager && (
         <SignatureManager
-          onClose={() => setShowSignatureManager(false)}
-          onInsertSignature={handleInsertSignature}
+          onClose={() => {
+            setShowSignatureManager(false)
+            // Recarrega o nome do agente após fechar o modal
+            const savedName = localStorage.getItem('agentName')
+            if (savedName) {
+              setAgentName(savedName)
+            }
+          }}
         />
       )}
     </div>

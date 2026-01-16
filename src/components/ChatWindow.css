@@ -154,19 +154,32 @@
 
 .message {
   display: flex;
+  flex-direction: column;
   width: 100%;
 }
 
 .message.user {
-  justify-content: flex-start;
+  align-items: flex-start;
 }
 
 .message.bot {
-  justify-content: flex-end;
+  align-items: flex-end;
 }
 
 .message.agent {
-  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+.agent-name-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #9b59b6;
+  padding: 2px 8px;
+  margin-bottom: 4px;
+  background: rgba(155, 89, 182, 0.15);
+  border-radius: 4px;
+  display: inline-block;
+  max-width: 65%;
 }
 
 .message-bubble {
