@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
+import { useAuth } from '../contexts/AuthContext'
 import './ProductStock.css'
 
 function ProductStock() {
+  const { user } = useAuth()
   const [products, setProducts] = useState([])
   const [showModal, setShowModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterCategory, setFilterCategory] = useState('all')
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     sku: '',
@@ -19,18 +24,30 @@ function ProductStock() {
     supplier: ''
   })
 
-  // Carregar produtos do localStorage
+  // Carregar produtos do Supabase
   useEffect(() => {
-    const savedProducts = localStorage.getItem('products')
-    if (savedProducts) {
-      setProducts(JSON.parse(savedProducts))
+    if (user) {
+      fetchProducts()
     }
-  }, [])
+  }, [user])
 
-  // Salvar produtos no localStorage
-  const saveProducts = (newProducts) => {
-    localStorage.setItem('products', JSON.stringify(newProducts))
-    setProducts(newProducts)
+  const fetchProducts = async () => {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setProducts(data || [])
+    } catch (error) {
+      console.error('Erro ao carregar produtos:', error.message)
+      alert('Erro ao carregar produtos. Verifique sua conexão.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleInputChange = (e) => {
@@ -38,29 +55,58 @@ function ProductStock() {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setSaving(true)
 
-    if (editingProduct) {
-      // Editar produto existente
-      const updatedProducts = products.map(p =>
-        p.id === editingProduct.id
-          ? { ...formData, id: p.id, updatedAt: new Date().toISOString() }
-          : p
-      )
-      saveProducts(updatedProducts)
-    } else {
-      // Adicionar novo produto
-      const newProduct = {
-        ...formData,
-        id: Date.now(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+    try {
+      if (editingProduct) {
+        // Editar produto existente
+        const { error } = await supabase
+          .from('products')
+          .update({
+            name: formData.name,
+            sku: formData.sku,
+            category: formData.category,
+            price: parseFloat(formData.price),
+            cost: parseFloat(formData.cost),
+            stock: parseInt(formData.stock),
+            min_stock: parseInt(formData.minStock),
+            description: formData.description,
+            supplier: formData.supplier
+          })
+          .eq('id', editingProduct.id)
+          .eq('user_id', user.id)
+
+        if (error) throw error
+      } else {
+        // Adicionar novo produto
+        const { error } = await supabase
+          .from('products')
+          .insert([{
+            user_id: user.id,
+            name: formData.name,
+            sku: formData.sku,
+            category: formData.category,
+            price: parseFloat(formData.price),
+            cost: parseFloat(formData.cost),
+            stock: parseInt(formData.stock),
+            min_stock: parseInt(formData.minStock),
+            description: formData.description,
+            supplier: formData.supplier
+          }])
+
+        if (error) throw error
       }
-      saveProducts([...products, newProduct])
-    }
 
-    resetForm()
+      await fetchProducts()
+      resetForm()
+    } catch (error) {
+      console.error('Erro ao salvar produto:', error.message)
+      alert('Erro ao salvar produto: ' + error.message)
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleEdit = (product) => {
@@ -72,16 +118,30 @@ function ProductStock() {
       price: product.price,
       cost: product.cost,
       stock: product.stock,
-      minStock: product.minStock,
-      description: product.description,
-      supplier: product.supplier
+      minStock: product.min_stock,
+      description: product.description || '',
+      supplier: product.supplier || ''
     })
     setShowModal(true)
   }
 
-  const handleDelete = (id) => {
-    if (window.confirm('Tem certeza que deseja excluir este produto?')) {
-      saveProducts(products.filter(p => p.id !== id))
+  const handleDelete = async (id) => {
+    if (!window.confirm('Tem certeza que deseja excluir este produto?')) {
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.id)
+
+      if (error) throw error
+      await fetchProducts()
+    } catch (error) {
+      console.error('Erro ao excluir produto:', error.message)
+      alert('Erro ao excluir produto: ' + error.message)
     }
   }
 
@@ -115,7 +175,7 @@ function ProductStock() {
   // Estatísticas
   const stats = {
     total: products.length,
-    lowStock: products.filter(p => parseInt(p.stock) <= parseInt(p.minStock)).length,
+    lowStock: products.filter(p => parseInt(p.stock) <= parseInt(p.min_stock || p.minStock || 0)).length,
     outOfStock: products.filter(p => parseInt(p.stock) === 0).length,
     totalValue: products.reduce((sum, p) => sum + (parseFloat(p.price) * parseInt(p.stock)), 0)
   }
@@ -215,7 +275,12 @@ function ProductStock() {
 
       {/* Tabela de Produtos */}
       <div className="products-table-container">
-        {filteredProducts.length === 0 ? (
+        {loading ? (
+          <div className="empty-state">
+            <div className="spinner-large"></div>
+            <p>Carregando produtos...</p>
+          </div>
+        ) : filteredProducts.length === 0 ? (
           <div className="empty-state">
             <svg viewBox="0 0 24 24" width="64" height="64">
               <path fill="var(--text-secondary)" d="M19,18H6V8H19M19,6H6V4H19M3,14H4V20H20V14H21V20A1,1 0 0,1 20,21H4A1,1 0 0,1 3,20V14M16,8V10H14V12H12V10H10V8H12V6H14V8H16Z" />
@@ -241,7 +306,8 @@ function ProductStock() {
             <tbody>
               {filteredProducts.map(product => {
                 const margin = ((parseFloat(product.price) - parseFloat(product.cost)) / parseFloat(product.price) * 100).toFixed(1)
-                const isLowStock = parseInt(product.stock) <= parseInt(product.minStock)
+                const minStock = product.min_stock || product.minStock || 0
+                const isLowStock = parseInt(product.stock) <= parseInt(minStock)
 
                 return (
                   <tr key={product.id} className={isLowStock ? 'low-stock' : ''}>
@@ -264,7 +330,7 @@ function ProductStock() {
                         {product.stock}
                       </span>
                     </td>
-                    <td>{product.minStock}</td>
+                    <td>{minStock}</td>
                     <td>R$ {parseFloat(product.cost).toFixed(2)}</td>
                     <td>R$ {parseFloat(product.price).toFixed(2)}</td>
                     <td>
@@ -435,11 +501,11 @@ function ProductStock() {
               </div>
 
               <div className="modal-footer">
-                <button type="button" className="btn-secondary" onClick={resetForm}>
+                <button type="button" className="btn-secondary" onClick={resetForm} disabled={saving}>
                   Cancelar
                 </button>
-                <button type="submit" className="btn-primary">
-                  {editingProduct ? 'Salvar Alterações' : 'Cadastrar Produto'}
+                <button type="submit" className="btn-primary" disabled={saving}>
+                  {saving ? 'Salvando...' : (editingProduct ? 'Salvar Alterações' : 'Cadastrar Produto')}
                 </button>
               </div>
             </form>
