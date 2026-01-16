@@ -1,62 +1,83 @@
 /* Mobile Navigation Styles */
 
-/* Mobile Header - visível apenas em mobile */
-.mobile-header {
+/* Bottom Navigation Bar */
+.mobile-bottom-nav {
   display: none;
   position: fixed;
-  top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
-  height: 60px;
+  height: 70px;
   background: var(--bg-tertiary);
-  border-bottom: 1px solid var(--bg-hover);
-  padding: 0 16px;
-  align-items: center;
-  justify-content: space-between;
+  border-top: 1px solid var(--bg-hover);
+  padding: 8px 0;
   z-index: 100;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
 }
 
-.menu-toggle {
-  background: none;
-  border: none;
-  color: var(--text-primary);
-  cursor: pointer;
-  padding: 8px;
+.nav-button {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  transition: background 0.2s;
-}
-
-.menu-toggle:hover {
-  background: var(--bg-hover);
-}
-
-.mobile-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 12px;
+  transition: all 0.2s;
   flex: 1;
-  text-align: center;
+  min-width: 0;
 }
 
-.mobile-new-chat {
-  background: none;
-  border: none;
-  color: var(--text-primary);
-  cursor: pointer;
-  padding: 8px;
+.nav-button svg {
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.nav-button span {
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.nav-button.active {
+  color: var(--accent-primary);
+}
+
+.nav-button.active svg {
+  transform: scale(1.1);
+}
+
+/* Botão central destacado */
+.nav-button-center {
+  position: relative;
+  padding: 0;
+  margin-top: -20px;
+}
+
+.nav-button-center .center-icon {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, #9d4edd 100%);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  transition: background 0.2s;
+  box-shadow: 0 4px 12px rgba(138, 43, 226, 0.4);
+  transition: all 0.2s;
 }
 
-.mobile-new-chat:hover {
-  background: var(--bg-hover);
+.nav-button-center .center-icon svg {
+  color: #fff;
+}
+
+.nav-button-center:active .center-icon {
+  transform: scale(0.95);
 }
 
 /* Overlay - fecha o menu ao clicar fora */
@@ -437,7 +458,7 @@
 /* Responsividade */
 @media (max-width: 768px) {
   /* Mostrar elementos mobile */
-  .mobile-header {
+  .mobile-bottom-nav {
     display: flex;
   }
 
@@ -449,21 +470,29 @@
     display: flex;
   }
 
-  /* Adicionar padding no conteúdo para compensar o header fixo */
-  .app-content {
-    padding-top: 60px;
+  /* Adicionar padding no conteúdo para compensar a bottom nav */
+  .chat-window,
+  .kanban-board-container,
+  .analytics-container,
+  .whatsapp-connection-container {
+    padding-bottom: 70px;
   }
 }
 
 /* Ajustes para telas muito pequenas */
 @media (max-width: 375px) {
-  .mobile-header {
-    height: 56px;
-    padding: 0 12px;
+  .mobile-bottom-nav {
+    height: 65px;
+    padding: 6px 0;
   }
 
-  .mobile-title {
-    font-size: 16px;
+  .nav-button span {
+    font-size: 10px;
+  }
+
+  .nav-button-center .center-icon {
+    width: 52px;
+    height: 52px;
   }
 
   .menu-header h2 {
