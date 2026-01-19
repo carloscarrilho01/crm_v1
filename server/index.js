@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import path from 'path';
@@ -43,6 +44,37 @@ app.use(cors({
 // Aumenta o limite do body para 50MB (para suportar arquivos em base64)
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// Rate limiting configuration
+// Limiter geral para API - 100 requests por minuto por IP
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minuto
+  max: 100, // 100 requisições por janela
+  message: { error: 'Muitas requisições. Tente novamente em breve.' },
+  standardHeaders: true, // Retorna rate limit info nos headers `RateLimit-*`
+  legacyHeaders: false, // Desabilita headers `X-RateLimit-*`
+});
+
+// Limiter mais restrito para operações de escrita (POST, PUT, DELETE) - 30 requests por minuto
+const writeLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  message: { error: 'Muitas operações de escrita. Tente novamente em breve.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Limiter para webhook/n8n - 50 requests por minuto (mais permissivo)
+const webhookLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 50,
+  message: { error: 'Muitas requisições de webhook. Tente novamente em breve.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Aplica rate limiting geral em todas as rotas /api/*
+app.use('/api/', apiLimiter);
 
 // Log de todas as requisições para debug
 app.use((req, res, next) => {
@@ -140,7 +172,7 @@ async function addMessage(userId, message) {
 }
 
 // Endpoint para receber webhooks do n8n
-app.post('/api/webhook/message', async (req, res) => {
+app.post('/api/webhook/message', webhookLimiter, async (req, res) => {
   try {
     const { userId, userName, message, isBot, timestamp } = req.body;
 
@@ -204,7 +236,7 @@ app.post('/api/webhook/message', async (req, res) => {
 });
 
 // Endpoint para receber webhooks de produtos
-app.post('/api/webhook/product', async (req, res) => {
+app.post('/api/webhook/product', webhookLimiter, async (req, res) => {
   try {
     const { event, product, timestamp } = req.body;
 
@@ -318,7 +350,7 @@ app.get('/api/quick-messages/:id', async (req, res) => {
 });
 
 // POST /api/quick-messages - Cria nova mensagem rápida
-app.post('/api/quick-messages', async (req, res) => {
+app.post('/api/quick-messages', writeLimiter, async (req, res) => {
   try {
     const { text, emoji, category, shortcut, order, enabled } = req.body;
 
@@ -350,7 +382,7 @@ app.post('/api/quick-messages', async (req, res) => {
 });
 
 // PUT /api/quick-messages/:id - Atualiza mensagem rápida
-app.put('/api/quick-messages/:id', async (req, res) => {
+app.put('/api/quick-messages/:id', writeLimiter, async (req, res) => {
   try {
     const { id } = req.params;
     const { text, emoji, category, shortcut, order, enabled } = req.body;
@@ -379,7 +411,7 @@ app.put('/api/quick-messages/:id', async (req, res) => {
 });
 
 // DELETE /api/quick-messages/:id - Remove mensagem rápida
-app.delete('/api/quick-messages/:id', async (req, res) => {
+app.delete('/api/quick-messages/:id', writeLimiter, async (req, res) => {
   try {
     const { id } = req.params;
     const success = await QuickMessageDB.delete(id);
@@ -399,7 +431,7 @@ app.delete('/api/quick-messages/:id', async (req, res) => {
 });
 
 // POST /api/quick-messages/reorder - Reordena mensagens rápidas
-app.post('/api/quick-messages/reorder', async (req, res) => {
+app.post('/api/quick-messages/reorder', writeLimiter, async (req, res) => {
   try {
     const { orderedIds } = req.body;
 
@@ -428,7 +460,7 @@ app.post('/api/quick-messages/reorder', async (req, res) => {
 // ============================================
 
 // POST /api/conversations/new - Criar nova conversa
-app.post('/api/conversations/new', async (req, res) => {
+app.post('/api/conversations/new', writeLimiter, async (req, res) => {
   try {
     const { userId, userName, initialMessage } = req.body;
 
@@ -539,7 +571,7 @@ app.get('/api/leads/:userId/trava', async (req, res) => {
 });
 
 // POST /api/leads/:userId/toggle-trava - Alterna status da trava
-app.post('/api/leads/:userId/toggle-trava', async (req, res) => {
+app.post('/api/leads/:userId/toggle-trava', writeLimiter, async (req, res) => {
   try {
     const { userId } = req.params;
     const newStatus = await LeadDB.toggleTrava(userId);
@@ -725,7 +757,7 @@ app.get('/api/leads', async (req, res) => {
 });
 
 // POST /api/leads - Cria um novo lead
-app.post('/api/leads', async (req, res) => {
+app.post('/api/leads', writeLimiter, async (req, res) => {
   try {
     const { telefone, nome, email, status, observacoes } = req.body;
 
@@ -787,7 +819,7 @@ app.get('/api/leads/:uuid', async (req, res) => {
 });
 
 // PUT /api/leads/:uuid - Atualiza um lead completo
-app.put('/api/leads/:uuid', async (req, res) => {
+app.put('/api/leads/:uuid', writeLimiter, async (req, res) => {
   try {
     const { uuid } = req.params;
     const { nome, telefone, email, status, observacoes } = req.body;
@@ -822,7 +854,7 @@ app.put('/api/leads/:uuid', async (req, res) => {
 });
 
 // DELETE /api/leads/:uuid - Deleta um lead
-app.delete('/api/leads/:uuid', async (req, res) => {
+app.delete('/api/leads/:uuid', writeLimiter, async (req, res) => {
   try {
     const { uuid } = req.params;
 
@@ -852,7 +884,7 @@ app.delete('/api/leads/:uuid', async (req, res) => {
 });
 
 // PUT /api/leads/:uuid/status - Atualiza o status de um lead
-app.put('/api/leads/:uuid/status', async (req, res) => {
+app.put('/api/leads/:uuid/status', writeLimiter, async (req, res) => {
   try {
     const { uuid } = req.params;
     const { status } = req.body;
@@ -937,7 +969,7 @@ app.put('/api/leads/:uuid/status', async (req, res) => {
 });
 
 // Endpoint para enviar mensagem (intervenção manual)
-app.post('/api/conversations/:userId/send', async (req, res) => {
+app.post('/api/conversations/:userId/send', writeLimiter, async (req, res) => {
   try {
     const { userId } = req.params;
     const { message, type = 'text', duration, fileName, fileSize, fileType, fileCategory } = req.body;
@@ -1090,7 +1122,7 @@ app.get('/api/whatsapp/instances', async (req, res) => {
 });
 
 // POST /api/whatsapp/instance/create - Cria nova instância
-app.post('/api/whatsapp/instance/create', async (req, res) => {
+app.post('/api/whatsapp/instance/create', writeLimiter, async (req, res) => {
   try {
     const { instanceName, qrcode = true, integration = 'WHATSAPP-BAILEYS' } = req.body;
 
@@ -1209,7 +1241,7 @@ app.get('/api/whatsapp/find-by-number/:number', async (req, res) => {
 });
 
 // DELETE /api/whatsapp/instance/:name/logout - Desconecta instância
-app.delete('/api/whatsapp/instance/:name/logout', async (req, res) => {
+app.delete('/api/whatsapp/instance/:name/logout', writeLimiter, async (req, res) => {
   try {
     const { name } = req.params;
     const data = await evolutionApiRequest(`/instance/logout/${name}`, 'DELETE');
@@ -1227,7 +1259,7 @@ app.delete('/api/whatsapp/instance/:name/logout', async (req, res) => {
 });
 
 // DELETE /api/whatsapp/instance/:name - Deleta instância
-app.delete('/api/whatsapp/instance/:name', async (req, res) => {
+app.delete('/api/whatsapp/instance/:name', writeLimiter, async (req, res) => {
   try {
     const { name } = req.params;
     const data = await evolutionApiRequest(`/instance/delete/${name}`, 'DELETE');
