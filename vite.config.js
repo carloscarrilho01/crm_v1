@@ -34,7 +34,6 @@ export default defineConfig({
           ],
           'kanban': ['./src/components/KanbanBoard.jsx'],
           'analytics': ['./src/components/Analytics.jsx'],
-          'whatsapp': ['./src/components/WhatsAppConnection.jsx'],
           'stock': ['./src/components/ProductStock.jsx']
         }
       }
