@@ -205,7 +205,6 @@ function App() {
       <MobileNav
         currentView={currentView}
         onNavigate={setCurrentView}
-        onNavigateToWhatsApp={() => setCurrentView('whatsapp')}
         onNewConversation={handleNewConversation}
         conversations={conversations}
         selectedConversation={selectedConversation}
@@ -222,7 +221,6 @@ function App() {
             onNewConversation={handleNewConversation}
             onNavigateToCRM={() => setCurrentView('crm')}
             onNavigateToAnalytics={() => setCurrentView('analytics')}
-            onNavigateToWhatsApp={() => setCurrentView('whatsapp')}
             onNavigateToStock={() => setCurrentView('stock')}
             loading={loading}
           />

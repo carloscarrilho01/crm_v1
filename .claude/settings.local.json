@@ -22,7 +22,9 @@
       "Bash(timeout 5 tail:*)",
       "Bash(npm install:*)",
       "Bash(timeout:*)",
-      "Bash(node test-webhook.js:*)"
+      "Bash(node test-webhook.js:*)",
+      "Bash(git rm:*)",
+      "Bash(del /F /Q nul)"
     ]
   }
 }
