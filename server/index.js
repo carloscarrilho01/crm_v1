@@ -1230,24 +1230,30 @@ app.get('/api/service-orders/:id', async (req, res) => {
 // Criar nova OS
 app.post('/api/service-orders', writeLimiter, async (req, res) => {
   try {
+    console.log('📋 Criando nova OS com dados:', JSON.stringify(req.body, null, 2));
+
     const { clienteNome, descricao } = req.body;
 
     if (!clienteNome || !descricao) {
+      console.log('⚠️ Campos obrigatórios faltando:', { clienteNome: !!clienteNome, descricao: !!descricao });
       return res.status(400).json({ error: 'Nome do cliente e descrição são obrigatórios' });
     }
 
     const order = await ServiceOrderDB.create(req.body);
     if (!order) {
-      return res.status(500).json({ error: 'Erro ao criar ordem de serviço' });
+      console.error('❌ ServiceOrderDB.create retornou null - verifique se a tabela service_orders existe no Supabase');
+      return res.status(500).json({ error: 'Erro ao criar OS. Verifique se a tabela service_orders existe no Supabase.' });
     }
+
+    console.log('✅ OS criada com sucesso:', order.numeroOs);
 
     // Emite evento WebSocket
     io.emit('os-created', order);
 
     res.status(201).json(order);
   } catch (error) {
-    console.error('Erro ao criar ordem de serviço:', error);
-    res.status(500).json({ error: 'Erro ao criar ordem de serviço' });
+    console.error('❌ Erro ao criar ordem de serviço:', error);
+    res.status(500).json({ error: 'Erro ao criar ordem de serviço: ' + error.message });
   }
 });
 

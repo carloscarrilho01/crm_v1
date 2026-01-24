@@ -747,25 +747,29 @@ export const LeadDB = {
 // Funções para Ordens de Serviço
 export const ServiceOrderDB = {
   async generateNumeroOS() {
-    if (!isConnected) return null;
+    if (!isConnected) {
+      const today = new Date();
+      const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
+      return `OS-${dateStr}-0001`;
+    }
 
     try {
-      const { data, error } = await supabase.rpc('generate_os_number');
+      const today = new Date();
+      const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
+
+      // Tenta contar as OS do dia para gerar o próximo número
+      const { count, error } = await supabase
+        .from('service_orders')
+        .select('*', { count: 'exact', head: true })
+        .like('numero_os', `OS-${dateStr}-%`);
 
       if (error) {
-        // Fallback: gera manualmente se a function não existir
-        const today = new Date();
-        const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
-        const { count } = await supabase
-          .from('service_orders')
-          .select('*', { count: 'exact', head: true })
-          .like('numero_os', `OS-${dateStr}-%`);
-
-        const seq = (count || 0) + 1;
-        return `OS-${dateStr}-${String(seq).padStart(4, '0')}`;
+        console.log('⚠️ Erro ao contar OS do dia (tabela pode não existir):', error.message);
+        return `OS-${dateStr}-0001`;
       }
 
-      return data;
+      const seq = (count || 0) + 1;
+      return `OS-${dateStr}-${String(seq).padStart(4, '0')}`;
     } catch (error) {
       console.error('Erro ao gerar número da OS:', error);
       const today = new Date();
@@ -983,7 +987,12 @@ export const ServiceOrderDB = {
         updatedAt: data.updated_at
       };
     } catch (error) {
-      console.error('Erro ao criar ordem de serviço:', error);
+      console.error('❌ Erro ao criar ordem de serviço:', error.message || error);
+      if (error.code === '42P01') {
+        console.error('❌ A tabela "service_orders" não existe. Execute o SQL do arquivo supabase_service_orders.sql no Supabase Dashboard.');
+      }
+      if (error.details) console.error('❌ Detalhes:', error.details);
+      if (error.hint) console.error('❌ Dica:', error.hint);
       return null;
     }
   },

@@ -189,11 +189,16 @@ function ServiceOrders({ socket }) {
       if (response.ok) {
         setShowModal(false)
         fetchOrders()
+        fetchStats()
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || 'Erro ao salvar OS')
       }
     } catch (error) {
       console.error('Erro ao salvar OS:', error)
+      alert('Erro de conexao ao salvar OS')
     }
-  }, [fetchOrders])
+  }, [fetchOrders, fetchStats])
 
   const formatDate = useCallback((date) => {
     if (!date) return '-'
