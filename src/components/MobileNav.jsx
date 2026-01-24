@@ -82,14 +82,13 @@ function MobileNav({
         </button>
 
         <button
-          className="nav-button nav-button-center"
-          onClick={onNewConversation}
+          className={`nav-button ${currentView === 'os' ? 'active' : ''}`}
+          onClick={() => handleNavigate('os')}
         >
-          <div className="center-icon">
-            <svg viewBox="0 0 24 24" width="24" height="24">
-              <path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
-            </svg>
-          </div>
+          <svg viewBox="0 0 24 24" width="24" height="24">
+            <path fill="currentColor" d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M9,13V18H7V13H9M15,15V18H13V15H15M11,11V18H13V11H11Z" />
+          </svg>
+          <span>OS</span>
         </button>
 
         <button
@@ -210,6 +209,16 @@ function MobileNav({
                 <path fill="currentColor" d="M16,11.78L20.24,4.45L21.97,5.45L16.74,14.5L10.23,10.75L5.46,19H22V21H2V3H4V17.54L9.5,8L16,11.78Z" />
               </svg>
               <span>Analytics</span>
+            </button>
+
+            <button
+              className={`menu-item ${currentView === 'os' ? 'active' : ''}`}
+              onClick={() => handleNavigate('os')}
+            >
+              <svg viewBox="0 0 24 24" width="24" height="24">
+                <path fill="currentColor" d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M9,13V18H7V13H9M15,15V18H13V15H15M11,11V18H13V11H11Z" />
+              </svg>
+              <span>Ordens de Servico</span>
             </button>
 
             <div className="menu-divider"></div>

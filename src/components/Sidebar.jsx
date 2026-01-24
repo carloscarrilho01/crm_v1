@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { formatConversationTime } from '../utils/dateFormatters'
 import './Sidebar.css'
 
-function Sidebar({ conversations, selectedConversation, onSelectConversation, loading, onNewConversation, onNavigateToCRM, onNavigateToAnalytics, onNavigateToStock }) {
+function Sidebar({ conversations, selectedConversation, onSelectConversation, loading, onNewConversation, onNavigateToCRM, onNavigateToAnalytics, onNavigateToStock, onNavigateToOS }) {
   const { signOut } = useAuth()
 
   const formatTime = useCallback((timestamp) => {
@@ -44,6 +44,15 @@ function Sidebar({ conversations, selectedConversation, onSelectConversation, lo
           >
             <svg viewBox="0 0 24 24" width="24" height="24">
               <path fill="currentColor" d="M19,18H6V8H19M19,6H6V4H19M3,14H4V20H20V14H21V20A1,1 0 0,1 20,21H4A1,1 0 0,1 3,20V14M16,8V10H14V12H12V10H10V8H12V6H14V8H16Z" />
+            </svg>
+          </button>
+          <button
+            className="icon-button os-btn"
+            onClick={onNavigateToOS}
+            title="Ordens de Servico"
+          >
+            <svg viewBox="0 0 24 24" width="24" height="24">
+              <path fill="currentColor" d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M9,13V18H7V13H9M15,15V18H13V15H15M11,11V18H13V11H11Z" />
             </svg>
           </button>
           <button

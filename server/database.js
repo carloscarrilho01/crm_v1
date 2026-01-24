@@ -743,3 +743,427 @@ export const LeadDB = {
     }
   }
 };
+
+// Funções para Ordens de Serviço
+export const ServiceOrderDB = {
+  async generateNumeroOS() {
+    if (!isConnected) return null;
+
+    try {
+      const { data, error } = await supabase.rpc('generate_os_number');
+
+      if (error) {
+        // Fallback: gera manualmente se a function não existir
+        const today = new Date();
+        const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
+        const { count } = await supabase
+          .from('service_orders')
+          .select('*', { count: 'exact', head: true })
+          .like('numero_os', `OS-${dateStr}-%`);
+
+        const seq = (count || 0) + 1;
+        return `OS-${dateStr}-${String(seq).padStart(4, '0')}`;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Erro ao gerar número da OS:', error);
+      const today = new Date();
+      const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
+      return `OS-${dateStr}-0001`;
+    }
+  },
+
+  async findAll(filters = {}) {
+    if (!isConnected) return [];
+
+    try {
+      let query = supabase
+        .from('service_orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (filters.status) {
+        query = query.eq('status', filters.status);
+      }
+      if (filters.prioridade) {
+        query = query.eq('prioridade', filters.prioridade);
+      }
+      if (filters.tecnico_id) {
+        query = query.eq('tecnico_id', filters.tecnico_id);
+      }
+      if (filters.search) {
+        query = query.or(
+          `numero_os.ilike.%${filters.search}%,cliente_nome.ilike.%${filters.search}%,cliente_telefone.ilike.%${filters.search}%,equipamento.ilike.%${filters.search}%`
+        );
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        numeroOs: row.numero_os,
+        leadId: row.lead_id,
+        clienteNome: row.cliente_nome,
+        clienteTelefone: row.cliente_telefone,
+        clienteEmail: row.cliente_email,
+        clienteEndereco: row.cliente_endereco,
+        clienteCpfCnpj: row.cliente_cpf_cnpj,
+        descricao: row.descricao,
+        observacoes: row.observacoes,
+        diagnostico: row.diagnostico,
+        solucao: row.solucao,
+        equipamento: row.equipamento,
+        marca: row.marca,
+        modelo: row.modelo,
+        numeroSerie: row.numero_serie,
+        tecnicoNome: row.tecnico_nome,
+        tecnicoId: row.tecnico_id,
+        valorServico: parseFloat(row.valor_servico) || 0,
+        valorPecas: parseFloat(row.valor_pecas) || 0,
+        desconto: parseFloat(row.desconto) || 0,
+        valorTotal: parseFloat(row.valor_total) || 0,
+        formaPagamento: row.forma_pagamento,
+        status: row.status,
+        prioridade: row.prioridade,
+        garantiaDias: row.garantia_dias,
+        dataEntrada: row.data_entrada,
+        dataPrevisao: row.data_previsao,
+        dataConclusao: row.data_conclusao,
+        dataEntrega: row.data_entrega,
+        itens: row.itens || [],
+        createdAt: row.created_at,
+        updatedAt: row.updated_at
+      }));
+    } catch (error) {
+      console.error('Erro ao buscar ordens de serviço:', error);
+      return [];
+    }
+  },
+
+  async findById(id) {
+    if (!isConnected) return null;
+
+    try {
+      const { data, error } = await supabase
+        .from('service_orders')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') return null;
+        throw error;
+      }
+
+      return {
+        id: data.id,
+        numeroOs: data.numero_os,
+        leadId: data.lead_id,
+        clienteNome: data.cliente_nome,
+        clienteTelefone: data.cliente_telefone,
+        clienteEmail: data.cliente_email,
+        clienteEndereco: data.cliente_endereco,
+        clienteCpfCnpj: data.cliente_cpf_cnpj,
+        descricao: data.descricao,
+        observacoes: data.observacoes,
+        diagnostico: data.diagnostico,
+        solucao: data.solucao,
+        equipamento: data.equipamento,
+        marca: data.marca,
+        modelo: data.modelo,
+        numeroSerie: data.numero_serie,
+        tecnicoNome: data.tecnico_nome,
+        tecnicoId: data.tecnico_id,
+        valorServico: parseFloat(data.valor_servico) || 0,
+        valorPecas: parseFloat(data.valor_pecas) || 0,
+        desconto: parseFloat(data.desconto) || 0,
+        valorTotal: parseFloat(data.valor_total) || 0,
+        formaPagamento: data.forma_pagamento,
+        status: data.status,
+        prioridade: data.prioridade,
+        garantiaDias: data.garantia_dias,
+        dataEntrada: data.data_entrada,
+        dataPrevisao: data.data_previsao,
+        dataConclusao: data.data_conclusao,
+        dataEntrega: data.data_entrega,
+        itens: data.itens || [],
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      };
+    } catch (error) {
+      console.error('Erro ao buscar ordem de serviço:', error);
+      return null;
+    }
+  },
+
+  async create(osData) {
+    if (!isConnected) return null;
+
+    try {
+      const numeroOs = osData.numeroOs || await this.generateNumeroOS();
+
+      const valorServico = parseFloat(osData.valorServico) || 0;
+      const valorPecas = parseFloat(osData.valorPecas) || 0;
+      const desconto = parseFloat(osData.desconto) || 0;
+      const valorTotal = osData.valorTotal || (valorServico + valorPecas - desconto);
+
+      const { data, error } = await supabase
+        .from('service_orders')
+        .insert({
+          numero_os: numeroOs,
+          lead_id: osData.leadId || null,
+          cliente_nome: osData.clienteNome,
+          cliente_telefone: osData.clienteTelefone || null,
+          cliente_email: osData.clienteEmail || null,
+          cliente_endereco: osData.clienteEndereco || null,
+          cliente_cpf_cnpj: osData.clienteCpfCnpj || null,
+          descricao: osData.descricao,
+          observacoes: osData.observacoes || null,
+          diagnostico: osData.diagnostico || null,
+          solucao: osData.solucao || null,
+          equipamento: osData.equipamento || null,
+          marca: osData.marca || null,
+          modelo: osData.modelo || null,
+          numero_serie: osData.numeroSerie || null,
+          tecnico_nome: osData.tecnicoNome || null,
+          tecnico_id: osData.tecnicoId || null,
+          valor_servico: valorServico,
+          valor_pecas: valorPecas,
+          desconto: desconto,
+          valor_total: valorTotal,
+          forma_pagamento: osData.formaPagamento || 'dinheiro',
+          status: osData.status || 'aberta',
+          prioridade: osData.prioridade || 'normal',
+          garantia_dias: osData.garantiaDias || 90,
+          data_entrada: osData.dataEntrada || new Date().toISOString(),
+          data_previsao: osData.dataPrevisao || null,
+          itens: osData.itens || []
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return {
+        id: data.id,
+        numeroOs: data.numero_os,
+        leadId: data.lead_id,
+        clienteNome: data.cliente_nome,
+        clienteTelefone: data.cliente_telefone,
+        clienteEmail: data.cliente_email,
+        clienteEndereco: data.cliente_endereco,
+        clienteCpfCnpj: data.cliente_cpf_cnpj,
+        descricao: data.descricao,
+        observacoes: data.observacoes,
+        diagnostico: data.diagnostico,
+        solucao: data.solucao,
+        equipamento: data.equipamento,
+        marca: data.marca,
+        modelo: data.modelo,
+        numeroSerie: data.numero_serie,
+        tecnicoNome: data.tecnico_nome,
+        tecnicoId: data.tecnico_id,
+        valorServico: parseFloat(data.valor_servico) || 0,
+        valorPecas: parseFloat(data.valor_pecas) || 0,
+        desconto: parseFloat(data.desconto) || 0,
+        valorTotal: parseFloat(data.valor_total) || 0,
+        formaPagamento: data.forma_pagamento,
+        status: data.status,
+        prioridade: data.prioridade,
+        garantiaDias: data.garantia_dias,
+        dataEntrada: data.data_entrada,
+        dataPrevisao: data.data_previsao,
+        dataConclusao: data.data_conclusao,
+        dataEntrega: data.data_entrega,
+        itens: data.itens || [],
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      };
+    } catch (error) {
+      console.error('Erro ao criar ordem de serviço:', error);
+      return null;
+    }
+  },
+
+  async update(id, osData) {
+    if (!isConnected) return null;
+
+    try {
+      const updateData = {
+        updated_at: new Date().toISOString()
+      };
+
+      if (osData.clienteNome !== undefined) updateData.cliente_nome = osData.clienteNome;
+      if (osData.clienteTelefone !== undefined) updateData.cliente_telefone = osData.clienteTelefone;
+      if (osData.clienteEmail !== undefined) updateData.cliente_email = osData.clienteEmail;
+      if (osData.clienteEndereco !== undefined) updateData.cliente_endereco = osData.clienteEndereco;
+      if (osData.clienteCpfCnpj !== undefined) updateData.cliente_cpf_cnpj = osData.clienteCpfCnpj;
+      if (osData.leadId !== undefined) updateData.lead_id = osData.leadId;
+      if (osData.descricao !== undefined) updateData.descricao = osData.descricao;
+      if (osData.observacoes !== undefined) updateData.observacoes = osData.observacoes;
+      if (osData.diagnostico !== undefined) updateData.diagnostico = osData.diagnostico;
+      if (osData.solucao !== undefined) updateData.solucao = osData.solucao;
+      if (osData.equipamento !== undefined) updateData.equipamento = osData.equipamento;
+      if (osData.marca !== undefined) updateData.marca = osData.marca;
+      if (osData.modelo !== undefined) updateData.modelo = osData.modelo;
+      if (osData.numeroSerie !== undefined) updateData.numero_serie = osData.numeroSerie;
+      if (osData.tecnicoNome !== undefined) updateData.tecnico_nome = osData.tecnicoNome;
+      if (osData.tecnicoId !== undefined) updateData.tecnico_id = osData.tecnicoId;
+      if (osData.valorServico !== undefined) updateData.valor_servico = parseFloat(osData.valorServico) || 0;
+      if (osData.valorPecas !== undefined) updateData.valor_pecas = parseFloat(osData.valorPecas) || 0;
+      if (osData.desconto !== undefined) updateData.desconto = parseFloat(osData.desconto) || 0;
+      if (osData.formaPagamento !== undefined) updateData.forma_pagamento = osData.formaPagamento;
+      if (osData.status !== undefined) updateData.status = osData.status;
+      if (osData.prioridade !== undefined) updateData.prioridade = osData.prioridade;
+      if (osData.garantiaDias !== undefined) updateData.garantia_dias = osData.garantiaDias;
+      if (osData.dataPrevisao !== undefined) updateData.data_previsao = osData.dataPrevisao;
+      if (osData.dataConclusao !== undefined) updateData.data_conclusao = osData.dataConclusao;
+      if (osData.dataEntrega !== undefined) updateData.data_entrega = osData.dataEntrega;
+      if (osData.itens !== undefined) updateData.itens = osData.itens;
+
+      // Recalcula valor total se algum valor mudou
+      if (osData.valorServico !== undefined || osData.valorPecas !== undefined || osData.desconto !== undefined) {
+        const valorServico = parseFloat(osData.valorServico ?? updateData.valor_servico ?? 0);
+        const valorPecas = parseFloat(osData.valorPecas ?? updateData.valor_pecas ?? 0);
+        const desconto = parseFloat(osData.desconto ?? updateData.desconto ?? 0);
+        updateData.valor_total = valorServico + valorPecas - desconto;
+      }
+      if (osData.valorTotal !== undefined) updateData.valor_total = parseFloat(osData.valorTotal);
+
+      const { data, error } = await supabase
+        .from('service_orders')
+        .update(updateData)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return {
+        id: data.id,
+        numeroOs: data.numero_os,
+        leadId: data.lead_id,
+        clienteNome: data.cliente_nome,
+        clienteTelefone: data.cliente_telefone,
+        clienteEmail: data.cliente_email,
+        clienteEndereco: data.cliente_endereco,
+        clienteCpfCnpj: data.cliente_cpf_cnpj,
+        descricao: data.descricao,
+        observacoes: data.observacoes,
+        diagnostico: data.diagnostico,
+        solucao: data.solucao,
+        equipamento: data.equipamento,
+        marca: data.marca,
+        modelo: data.modelo,
+        numeroSerie: data.numero_serie,
+        tecnicoNome: data.tecnico_nome,
+        tecnicoId: data.tecnico_id,
+        valorServico: parseFloat(data.valor_servico) || 0,
+        valorPecas: parseFloat(data.valor_pecas) || 0,
+        desconto: parseFloat(data.desconto) || 0,
+        valorTotal: parseFloat(data.valor_total) || 0,
+        formaPagamento: data.forma_pagamento,
+        status: data.status,
+        prioridade: data.prioridade,
+        garantiaDias: data.garantia_dias,
+        dataEntrada: data.data_entrada,
+        dataPrevisao: data.data_previsao,
+        dataConclusao: data.data_conclusao,
+        dataEntrega: data.data_entrega,
+        itens: data.itens || [],
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      };
+    } catch (error) {
+      console.error('Erro ao atualizar ordem de serviço:', error);
+      return null;
+    }
+  },
+
+  async updateStatus(id, status) {
+    if (!isConnected) return null;
+
+    try {
+      const updateData = { status, updated_at: new Date().toISOString() };
+
+      if (status === 'concluida') {
+        updateData.data_conclusao = new Date().toISOString();
+      } else if (status === 'entregue') {
+        updateData.data_entrega = new Date().toISOString();
+      }
+
+      const { data, error } = await supabase
+        .from('service_orders')
+        .update(updateData)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return {
+        id: data.id,
+        numeroOs: data.numero_os,
+        status: data.status,
+        dataConclusao: data.data_conclusao,
+        dataEntrega: data.data_entrega
+      };
+    } catch (error) {
+      console.error('Erro ao atualizar status da OS:', error);
+      return null;
+    }
+  },
+
+  async delete(id) {
+    if (!isConnected) return false;
+
+    try {
+      const { error } = await supabase
+        .from('service_orders')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      return true;
+    } catch (error) {
+      console.error('Erro ao deletar ordem de serviço:', error);
+      return false;
+    }
+  },
+
+  async getStats() {
+    if (!isConnected) return null;
+
+    try {
+      const { data, error } = await supabase
+        .from('service_orders')
+        .select('status, valor_total');
+
+      if (error) throw error;
+
+      const stats = {
+        total: data.length,
+        abertas: data.filter(d => d.status === 'aberta').length,
+        emAndamento: data.filter(d => d.status === 'em_andamento').length,
+        aguardandoPeca: data.filter(d => d.status === 'aguardando_peca').length,
+        aguardandoAprovacao: data.filter(d => d.status === 'aguardando_aprovacao').length,
+        concluidas: data.filter(d => d.status === 'concluida').length,
+        entregues: data.filter(d => d.status === 'entregue').length,
+        canceladas: data.filter(d => d.status === 'cancelada').length,
+        valorTotal: data.reduce((sum, d) => sum + (parseFloat(d.valor_total) || 0), 0),
+        valorConcluidas: data
+          .filter(d => ['concluida', 'entregue'].includes(d.status))
+          .reduce((sum, d) => sum + (parseFloat(d.valor_total) || 0), 0)
+      };
+
+      return stats;
+    } catch (error) {
+      console.error('Erro ao buscar estatísticas de OS:', error);
+      return null;
+    }
+  }
+};

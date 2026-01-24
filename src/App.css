@@ -37,7 +37,8 @@
 .crm-nav,
 .analytics-nav,
 .whatsapp-nav,
-.stock-nav {
+.stock-nav,
+.os-nav {
   width: 100%;
   background: var(--bg-tertiary);
   padding: 10px 20px;
@@ -49,7 +50,8 @@
 
 .analytics-view,
 .whatsapp-view,
-.stock-view {
+.stock-view,
+.os-view {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -130,7 +132,8 @@
   .crm-nav,
   .analytics-nav,
   .whatsapp-nav,
-  .stock-nav {
+  .stock-nav,
+  .os-nav {
     display: none;
   }
 
@@ -138,7 +141,8 @@
   .crm-view,
   .analytics-view,
   .whatsapp-view,
-  .stock-view {
+  .stock-view,
+  .os-view {
     padding-top: 0;
     padding-bottom: 70px;
   }
@@ -148,7 +152,8 @@
   .crm-view,
   .analytics-view,
   .whatsapp-view,
-  .stock-view {
+  .stock-view,
+  .os-view {
     padding-top: 0;
     padding-bottom: 65px;
   }

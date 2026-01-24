@@ -34,7 +34,12 @@ export default defineConfig({
           ],
           'kanban': ['./src/components/KanbanBoard.jsx'],
           'analytics': ['./src/components/Analytics.jsx'],
-          'stock': ['./src/components/ProductStock.jsx']
+          'stock': ['./src/components/ProductStock.jsx'],
+          'service-orders': [
+            './src/components/ServiceOrders.jsx',
+            './src/components/CreateEditOS.jsx',
+            './src/components/OSPdfGenerator.jsx'
+          ]
         }
       }
     },

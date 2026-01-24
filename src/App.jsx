@@ -15,10 +15,12 @@ import './App.css'
 const kanbanLoader = () => import('./components/KanbanBoard')
 const analyticsLoader = () => import('./components/Analytics')
 const stockLoader = () => import('./components/ProductStock')
+const serviceOrdersLoader = () => import('./components/ServiceOrders')
 
 const KanbanBoard = lazy(kanbanLoader)
 const Analytics = lazy(analyticsLoader)
 const ProductStock = lazy(stockLoader)
+const ServiceOrders = lazy(serviceOrdersLoader)
 
 // Loading component para Suspense
 const LoadingFallback = () => (
@@ -100,7 +102,8 @@ function App() {
       preloadComponents([
         { loader: kanbanLoader, name: 'KanbanBoard' },
         { loader: analyticsLoader, name: 'Analytics' },
-        { loader: stockLoader, name: 'ProductStock' }
+        { loader: stockLoader, name: 'ProductStock' },
+        { loader: serviceOrdersLoader, name: 'ServiceOrders' }
       ])
     }
   }, [user])
@@ -293,6 +296,7 @@ function App() {
             onNavigateToCRM={() => setCurrentView('crm')}
             onNavigateToAnalytics={() => setCurrentView('analytics')}
             onNavigateToStock={() => setCurrentView('stock')}
+            onNavigateToOS={() => setCurrentView('os')}
             loading={loading}
           />
           <ChatWindow
@@ -345,7 +349,7 @@ function App() {
             <Analytics socket={socket} />
           </Suspense>
         </div>
-      ) : (
+      ) : currentView === 'stock' ? (
         <div className="stock-view">
           <div className="stock-nav">
             <button className="back-button" onClick={() => setCurrentView('chat')}>
@@ -369,6 +373,32 @@ function App() {
           </div>
           <Suspense fallback={<LoadingFallback />}>
             <ProductStock />
+          </Suspense>
+        </div>
+      ) : (
+        <div className="os-view">
+          <div className="os-nav">
+            <button className="back-button" onClick={() => setCurrentView('chat')}>
+              <svg viewBox="0 0 24 24" width="20" height="20">
+                <path fill="currentColor" d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" />
+              </svg>
+              Voltar para Chat
+            </button>
+            <button className="nav-button" onClick={() => setCurrentView('crm')}>
+              <svg viewBox="0 0 24 24" width="20" height="20">
+                <path fill="currentColor" d="M12,5.5A3.5,3.5 0 0,1 15.5,9A3.5,3.5 0 0,1 12,12.5A3.5,3.5 0 0,1 8.5,9A3.5,3.5 0 0,1 12,5.5M5,8C5.56,8 6.08,8.15 6.53,8.42C6.38,9.85 6.8,11.27 7.66,12.38C7.16,13.34 6.16,14 5,14A3,3 0 0,1 2,11A3,3 0 0,1 5,8M19,8A3,3 0 0,1 22,11A3,3 0 0,1 19,14C17.84,14 16.84,13.34 16.34,12.38C17.2,11.27 17.62,9.85 17.47,8.42C17.92,8.15 18.44,8 19,8M5.5,18.25C5.5,16.18 8.41,14.5 12,14.5C15.59,14.5 18.5,16.18 18.5,18.25V20H5.5V18.25M0,20V18.5C0,17.11 1.89,15.94 4.45,15.6C3.86,16.28 3.5,17.22 3.5,18.25V20H0M24,20H20.5V18.25C20.5,17.22 20.14,16.28 19.55,15.6C22.11,15.94 24,17.11 24,18.5V20Z" />
+              </svg>
+              CRM
+            </button>
+            <button className="nav-button" onClick={() => setCurrentView('analytics')}>
+              <svg viewBox="0 0 24 24" width="20" height="20">
+                <path fill="currentColor" d="M16,11.78L20.24,4.45L21.97,5.45L16.74,14.5L10.23,10.75L5.46,19H22V21H2V3H4V17.54L9.5,8L16,11.78Z" />
+              </svg>
+              Analytics
+            </button>
+          </div>
+          <Suspense fallback={<LoadingFallback />}>
+            <ServiceOrders socket={socket} />
           </Suspense>
         </div>
       )}

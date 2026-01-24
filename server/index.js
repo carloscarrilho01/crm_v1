@@ -5,7 +5,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { connectDatabase, ConversationDB, QuickMessageDB, LeadDB } from './database.js';
+import { connectDatabase, ConversationDB, QuickMessageDB, LeadDB, ServiceOrderDB } from './database.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1169,6 +1169,152 @@ app.post('/api/conversations/:userId/send', writeLimiter, async (req, res) => {
 });
 
 // Evolution API integration removed
+
+// ==========================================
+// Rotas de Ordens de Serviço (OS)
+// ==========================================
+
+// Listar todas as OS (com filtros opcionais)
+app.get('/api/service-orders', async (req, res) => {
+  try {
+    const filters = {};
+    if (req.query.status) filters.status = req.query.status;
+    if (req.query.prioridade) filters.prioridade = req.query.prioridade;
+    if (req.query.tecnico_id) filters.tecnico_id = req.query.tecnico_id;
+    if (req.query.search) filters.search = req.query.search;
+
+    const orders = await ServiceOrderDB.findAll(filters);
+    res.json(orders);
+  } catch (error) {
+    console.error('Erro ao buscar ordens de serviço:', error);
+    res.status(500).json({ error: 'Erro ao buscar ordens de serviço' });
+  }
+});
+
+// Estatísticas de OS
+app.get('/api/service-orders/stats', async (req, res) => {
+  try {
+    const stats = await ServiceOrderDB.getStats();
+    res.json(stats || {});
+  } catch (error) {
+    console.error('Erro ao buscar estatísticas de OS:', error);
+    res.status(500).json({ error: 'Erro ao buscar estatísticas' });
+  }
+});
+
+// Gerar próximo número de OS
+app.get('/api/service-orders/next-number', async (req, res) => {
+  try {
+    const numero = await ServiceOrderDB.generateNumeroOS();
+    res.json({ numero });
+  } catch (error) {
+    console.error('Erro ao gerar número de OS:', error);
+    res.status(500).json({ error: 'Erro ao gerar número de OS' });
+  }
+});
+
+// Buscar OS por ID
+app.get('/api/service-orders/:id', async (req, res) => {
+  try {
+    const order = await ServiceOrderDB.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ error: 'Ordem de serviço não encontrada' });
+    }
+    res.json(order);
+  } catch (error) {
+    console.error('Erro ao buscar ordem de serviço:', error);
+    res.status(500).json({ error: 'Erro ao buscar ordem de serviço' });
+  }
+});
+
+// Criar nova OS
+app.post('/api/service-orders', writeLimiter, async (req, res) => {
+  try {
+    const { clienteNome, descricao } = req.body;
+
+    if (!clienteNome || !descricao) {
+      return res.status(400).json({ error: 'Nome do cliente e descrição são obrigatórios' });
+    }
+
+    const order = await ServiceOrderDB.create(req.body);
+    if (!order) {
+      return res.status(500).json({ error: 'Erro ao criar ordem de serviço' });
+    }
+
+    // Emite evento WebSocket
+    io.emit('os-created', order);
+
+    res.status(201).json(order);
+  } catch (error) {
+    console.error('Erro ao criar ordem de serviço:', error);
+    res.status(500).json({ error: 'Erro ao criar ordem de serviço' });
+  }
+});
+
+// Atualizar OS
+app.put('/api/service-orders/:id', writeLimiter, async (req, res) => {
+  try {
+    const order = await ServiceOrderDB.update(req.params.id, req.body);
+    if (!order) {
+      return res.status(404).json({ error: 'Ordem de serviço não encontrada' });
+    }
+
+    // Emite evento WebSocket
+    io.emit('os-updated', order);
+
+    res.json(order);
+  } catch (error) {
+    console.error('Erro ao atualizar ordem de serviço:', error);
+    res.status(500).json({ error: 'Erro ao atualizar ordem de serviço' });
+  }
+});
+
+// Atualizar status da OS
+app.put('/api/service-orders/:id/status', writeLimiter, async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ error: 'Status é obrigatório' });
+    }
+
+    const validStatuses = ['aberta', 'em_andamento', 'aguardando_peca', 'aguardando_aprovacao', 'aprovada', 'concluida', 'entregue', 'cancelada'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: 'Status inválido' });
+    }
+
+    const order = await ServiceOrderDB.updateStatus(req.params.id, status);
+    if (!order) {
+      return res.status(404).json({ error: 'Ordem de serviço não encontrada' });
+    }
+
+    // Emite evento WebSocket
+    io.emit('os-status-updated', order);
+
+    res.json(order);
+  } catch (error) {
+    console.error('Erro ao atualizar status da OS:', error);
+    res.status(500).json({ error: 'Erro ao atualizar status da OS' });
+  }
+});
+
+// Deletar OS
+app.delete('/api/service-orders/:id', writeLimiter, async (req, res) => {
+  try {
+    const success = await ServiceOrderDB.delete(req.params.id);
+    if (!success) {
+      return res.status(404).json({ error: 'Ordem de serviço não encontrada' });
+    }
+
+    // Emite evento WebSocket
+    io.emit('os-deleted', { id: req.params.id });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Erro ao deletar ordem de serviço:', error);
+    res.status(500).json({ error: 'Erro ao deletar ordem de serviço' });
+  }
+});
 
 // WebSocket connection
 io.on('connection', async (socket) => {
