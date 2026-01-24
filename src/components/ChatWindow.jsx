@@ -10,6 +10,64 @@ import CustomAudioPlayer from './CustomAudioPlayer'
 import './ChatWindow.css'
 import './FileUploader.css'
 
+// Componente para preview de imagem com tratamento de erro
+function ImagePreview({ src, alt }) {
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [imageSrc, setImageSrc] = useState(src);
+
+  const handleLoad = () => {
+    setIsLoading(false);
+    setHasError(false);
+    console.log('✅ Imagem carregada com sucesso');
+  };
+
+  const handleError = (e) => {
+    console.error('❌ Erro ao carregar imagem:', e);
+    console.error('Src:', src?.substring(0, 100) + '...');
+    setIsLoading(false);
+    setHasError(true);
+  };
+
+  const handleClick = () => {
+    if (!hasError) {
+      window.open(imageSrc, '_blank');
+    }
+  };
+
+  return (
+    <div className={`message-file-image-container ${isLoading ? 'image-loading' : ''} ${hasError ? 'image-error' : ''}`}>
+      {isLoading && (
+        <div className="image-loading-spinner">
+          <div className="spinner"></div>
+        </div>
+      )}
+      {hasError ? (
+        <div className="image-error-placeholder" onClick={() => window.open(src, '_blank')}>
+          <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor">
+            <path d="M21,19V5c0,-1.1 -0.9,-2 -2,-2H5c-1.1,0 -2,0.9 -2,2v14c0,1.1 0.9,2 2,2h14c1.1,0 2,-0.9 2,-2zM8.5,13.5l2.5,3.01L14.5,12l4.5,6H5l3.5,-4.5z"/>
+            <path d="M12,2L12,2c5.52,0 10,4.48 10,10v0c0,5.52 -4.48,10 -10,10h0C6.48,22 2,17.52 2,12v0C2,6.48 6.48,2 12,2z" fill="none" stroke="currentColor" strokeWidth="2"/>
+            <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" strokeWidth="2"/>
+            <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" strokeWidth="2"/>
+          </svg>
+          <p>Erro ao carregar imagem</p>
+          <small>Clique para abrir em nova aba</small>
+        </div>
+      ) : (
+        <img
+          src={imageSrc}
+          alt={alt}
+          className="message-file-image"
+          onClick={handleClick}
+          onLoad={handleLoad}
+          onError={handleError}
+          style={{ display: isLoading ? 'none' : 'block' }}
+        />
+      )}
+    </div>
+  );
+}
+
 function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket, conversations, onSelectConversation }) {
   const [message, setMessage] = useState('')
   const [showManager, setShowManager] = useState(false)
@@ -247,11 +305,9 @@ function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket, c
                 ) : msg.type === 'file' ? (
                   <div className="message-file">
                     {msg.fileCategory === 'image' ? (
-                      <img
+                      <ImagePreview
                         src={msg.fileUrl || msg.text}
-                        alt={msg.fileName}
-                        className="message-file-image"
-                        onClick={() => window.open(msg.fileUrl || msg.text, '_blank')}
+                        alt={msg.fileName || 'Imagem'}
                       />
                     ) : (
                       <div className="message-file-document" onClick={() => window.open(msg.fileUrl || msg.text, '_blank')}>
