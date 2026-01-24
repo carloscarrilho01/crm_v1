@@ -111,6 +111,13 @@ function ImagePreview({ src, alt }) {
 }
 
 function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket, conversations, onSelectConversation }) {
+  // ==================== DEBUG CRÍTICO ====================
+  console.log('🚨🚨🚨 CHATWINDOW RENDERIZOU! 🚨🚨🚨');
+  console.log('Conversa userId:', conversation?.userId);
+  console.log('Total de mensagens:', conversation?.messages?.length);
+  console.log('Primeira mensagem:', conversation?.messages?.[0]);
+  // ==================== FIM DEBUG ====================
+
   const [message, setMessage] = useState('')
   const [showManager, setShowManager] = useState(false)
   const [showSignatureManager, setShowSignatureManager] = useState(false)
