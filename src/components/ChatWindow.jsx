@@ -324,20 +324,24 @@ function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket, c
               <span>Carregando mensagens anteriores...</span>
             </div>
           )}
-          {conversation.messages.map((msg) => {
-            // Debug: log mensagem para verificar tipo
-            if (msg.type && msg.type !== 'text') {
-              console.group('🔍 Renderizando mensagem ' + msg.type);
-              console.log('Tipo:', msg.type);
+          {(() => {
+            // FORÇA log de TODAS as mensagens para debug
+            console.log('=====================================================');
+            console.log('📊 TOTAL DE MENSAGENS NA CONVERSA:', conversation.messages.length);
+            console.log('=====================================================');
+            conversation.messages.forEach((msg, index) => {
+              console.log(`\n--- Mensagem ${index + 1} ---`);
+              console.log('type:', msg.type);
+              console.log('text length:', msg.text?.length);
+              console.log('text prefix:', msg.text?.substring(0, 60));
+              console.log('fileUrl:', msg.fileUrl ? `EXISTE (${msg.fileUrl.length} chars)` : 'NÃO EXISTE');
               console.log('fileCategory:', msg.fileCategory);
-              console.log('fileUrl:', msg.fileUrl ? 'EXISTE (length: ' + msg.fileUrl?.length + ')' : 'NÃO EXISTE');
-              console.log('text:', msg.text ? 'EXISTE (length: ' + msg.text?.length + ')' : 'NÃO EXISTE');
               console.log('audioUrl:', msg.audioUrl ? 'EXISTE' : 'NÃO EXISTE');
-              console.log('fileName:', msg.fileName);
-              console.log('Mensagem completa:', JSON.stringify(msg).substring(0, 200));
-              console.groupEnd();
-            }
-
+              console.log('isBot:', msg.isBot, '| isAgent:', msg.isAgent);
+            });
+            console.log('=====================================================\n');
+          })()}
+          {conversation.messages.map((msg) => {
             return (
             <div
               key={msg.id}

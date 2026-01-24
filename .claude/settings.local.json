@@ -19,7 +19,10 @@
       "Bash(if exist nul del nul)",
       "Bash(git checkout:*)",
       "Bash(timeout /t 3)",
-      "Bash(timeout 5 tail:*)"
+      "Bash(timeout 5 tail:*)",
+      "Bash(npm install:*)",
+      "Bash(timeout:*)",
+      "Bash(node test-webhook.js:*)"
     ]
   }
 }
