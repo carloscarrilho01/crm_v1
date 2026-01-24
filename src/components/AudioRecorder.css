@@ -286,6 +286,45 @@
   margin-right: 4px;
 }
 
+/* Botão de download (quando áudio não suporta reprodução) */
+.audio-download-btn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  color: var(--bg-primary);
+  text-decoration: none;
+  margin-right: 4px;
+}
+
+.audio-download-btn:hover {
+  background: var(--accent-hover);
+  transform: scale(1.05);
+}
+
+.audio-download-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Estado de erro */
+.message-audio.audio-error .audio-play-btn {
+  background: rgba(255, 87, 87, 0.2);
+  border: 2px solid rgba(255, 87, 87, 0.5);
+  cursor: not-allowed;
+}
+
+.message-audio.audio-error .audio-progress-bar {
+  background: rgba(255, 87, 87, 0.5);
+}
+
 /* Diferentes estilos para mensagens de usuário/bot/agente */
 .message.user .audio-play-btn {
   background: rgba(255, 255, 255, 0.2);

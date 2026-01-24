@@ -6,6 +6,8 @@ function CustomAudioPlayer({ src, duration }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [totalDuration, setTotalDuration] = useState(duration || 0);
   const [isLoading, setIsLoading] = useState(true);
+  const [audioSrc, setAudioSrc] = useState(src);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -32,8 +34,30 @@ function CustomAudioPlayer({ src, duration }) {
 
     const handleError = (e) => {
       console.error('❌ Erro ao carregar áudio:', e);
+      console.error('Error code:', e.target?.error?.code);
+      console.error('Error message:', e.target?.error?.message);
       console.error('Src:', audio.src?.substring(0, 100) + '...');
+
       setIsLoading(false);
+      setHasError(true);
+
+      // Tenta formatos alternativos
+      const currentSrc = audio.src;
+
+      // Se está como webm, tenta mudar para ogg
+      if (currentSrc.includes('audio/webm')) {
+        console.log('🔄 Tentando formato OGG...');
+        const newSrc = currentSrc.replace('audio/webm', 'audio/ogg');
+        setAudioSrc(newSrc);
+        setHasError(false);
+      }
+      // Se está como ogg, tenta mpeg (menos provável de funcionar com WhatsApp)
+      else if (currentSrc.includes('audio/ogg')) {
+        console.log('🔄 Tentando formato MPEG...');
+        const newSrc = currentSrc.replace('audio/ogg', 'audio/mpeg');
+        setAudioSrc(newSrc);
+        setHasError(false);
+      }
     };
 
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
@@ -71,8 +95,14 @@ function CustomAudioPlayer({ src, duration }) {
       console.error('Mensagem:', error.message);
       setIsPlaying(false);
 
-      // Mostra alerta para o usuário
-      alert('Não foi possível reproduzir o áudio. Verifique o formato ou o console para mais detalhes.');
+      // Mensagem de erro mais específica
+      if (error.name === 'NotSupportedError') {
+        alert('❌ Formato de áudio não suportado pelo navegador.\n\n💡 Dica: Peça para converter o áudio para MP3 no n8n antes de enviar.');
+      } else if (error.name === 'NotAllowedError') {
+        alert('⚠️ O navegador bloqueou a reprodução automática.\n\nClique no botão play novamente.');
+      } else {
+        alert('Não foi possível reproduzir o áudio.\n\nErro: ' + error.message);
+      }
     }
   };
 
@@ -101,8 +131,8 @@ function CustomAudioPlayer({ src, duration }) {
   const progressPercentage = totalDuration ? (currentTime / totalDuration) * 100 : 0;
 
   return (
-    <div className={`message-audio ${isLoading ? 'audio-loading' : ''} ${isPlaying ? 'audio-playing' : ''}`}>
-      <audio ref={audioRef} src={src} className="audio-message-player" preload="metadata" />
+    <div className={`message-audio ${isLoading ? 'audio-loading' : ''} ${isPlaying ? 'audio-playing' : ''} ${hasError ? 'audio-error' : ''}`}>
+      <audio ref={audioRef} src={audioSrc} className="audio-message-player" preload="metadata" />
 
       <div className="custom-audio-player">
         {/* Botão Play/Pause */}
@@ -144,10 +174,23 @@ function CustomAudioPlayer({ src, duration }) {
           </div>
         </div>
 
-        {/* Ícone de microfone */}
-        <svg className="audio-mic-icon" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1 1.93c-3.94-.49-7-3.85-7-7.93h2c0 3.31 2.69 6 6 6s6-2.69 6-6h2c0 4.08-3.05 7.44-7 7.93V19h4v2H8v-2h4v-3.07z"/>
-        </svg>
+        {/* Ícone de microfone ou aviso de erro */}
+        {hasError ? (
+          <a
+            href={audioSrc}
+            download="audio.ogg"
+            className="audio-download-btn"
+            title="Download do áudio"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/>
+            </svg>
+          </a>
+        ) : (
+          <svg className="audio-mic-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1 1.93c-3.94-.49-7-3.85-7-7.93h2c0 3.31 2.69 6 6 6s6-2.69 6-6h2c0 4.08-3.05 7.44-7 7.93V19h4v2H8v-2h4v-3.07z"/>
+          </svg>
+        )}
       </div>
     </div>
   );
