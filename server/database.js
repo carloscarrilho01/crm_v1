@@ -62,7 +62,8 @@ export const ConversationDB = {
         messages: row.messages || [],
         lastMessage: row.last_message,
         lastTimestamp: row.last_timestamp,
-        unread: row.unread || 0
+        unread: row.unread || 0,
+        labelId: row.label_id || null
       }));
     } catch (error) {
       console.error('Erro ao buscar conversas:', error);
@@ -91,7 +92,8 @@ export const ConversationDB = {
         messages: data.messages || [],
         lastMessage: data.last_message,
         lastTimestamp: data.last_timestamp,
-        unread: data.unread || 0
+        unread: data.unread || 0,
+        labelId: data.label_id || null
       };
     } catch (error) {
       console.error('Erro ao buscar conversa:', error);
@@ -127,7 +129,8 @@ export const ConversationDB = {
         messages: data.messages || [],
         lastMessage: data.last_message,
         lastTimestamp: data.last_timestamp,
-        unread: data.unread || 0
+        unread: data.unread || 0,
+        labelId: data.label_id || null
       };
     } catch (error) {
       console.error('Erro ao salvar conversa:', error);
@@ -745,6 +748,246 @@ export const LeadDB = {
     } catch (error) {
       console.error('Erro ao deletar lead:', error);
       return false;
+    }
+  }
+};
+
+// Funções para Etiquetas (Labels)
+export const LabelDB = {
+  async findAll() {
+    if (!isConnected) return [];
+
+    try {
+      const { data, error } = await supabase
+        .from('labels')
+        .select('*')
+        .order('order', { ascending: true });
+
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        name: row.name,
+        color: row.color,
+        order: row.order,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at
+      }));
+    } catch (error) {
+      console.error('Erro ao buscar etiquetas:', error);
+      return [];
+    }
+  },
+
+  async findById(id) {
+    if (!isConnected) return null;
+
+    try {
+      const { data, error } = await supabase
+        .from('labels')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') return null;
+        throw error;
+      }
+
+      return {
+        id: data.id,
+        name: data.name,
+        color: data.color,
+        order: data.order,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      };
+    } catch (error) {
+      console.error('Erro ao buscar etiqueta:', error);
+      return null;
+    }
+  },
+
+  async create(labelData) {
+    if (!isConnected) return null;
+
+    try {
+      // Pega a maior ordem atual para colocar no final
+      const { data: maxOrderData } = await supabase
+        .from('labels')
+        .select('order')
+        .order('order', { ascending: false })
+        .limit(1);
+
+      const nextOrder = maxOrderData && maxOrderData.length > 0 ? (maxOrderData[0].order || 0) + 1 : 1;
+
+      const { data, error } = await supabase
+        .from('labels')
+        .insert({
+          name: labelData.name,
+          color: labelData.color || '#25D366',
+          order: labelData.order ?? nextOrder
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return {
+        id: data.id,
+        name: data.name,
+        color: data.color,
+        order: data.order,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      };
+    } catch (error) {
+      console.error('Erro ao criar etiqueta:', error);
+      return null;
+    }
+  },
+
+  async update(id, labelData) {
+    if (!isConnected) return null;
+
+    try {
+      const updateData = {
+        updated_at: new Date().toISOString()
+      };
+
+      if (labelData.name !== undefined) updateData.name = labelData.name;
+      if (labelData.color !== undefined) updateData.color = labelData.color;
+      if (labelData.order !== undefined) updateData.order = labelData.order;
+
+      const { data, error } = await supabase
+        .from('labels')
+        .update(updateData)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return {
+        id: data.id,
+        name: data.name,
+        color: data.color,
+        order: data.order,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      };
+    } catch (error) {
+      console.error('Erro ao atualizar etiqueta:', error);
+      return null;
+    }
+  },
+
+  async delete(id) {
+    if (!isConnected) return false;
+
+    try {
+      // Remove a etiqueta das conversas primeiro (já é tratado pelo ON DELETE SET NULL)
+      const { error } = await supabase
+        .from('labels')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      return true;
+    } catch (error) {
+      console.error('Erro ao deletar etiqueta:', error);
+      return false;
+    }
+  },
+
+  async reorder(orderedIds) {
+    if (!isConnected) return false;
+
+    try {
+      for (let i = 0; i < orderedIds.length; i++) {
+        await supabase
+          .from('labels')
+          .update({ order: i, updated_at: new Date().toISOString() })
+          .eq('id', orderedIds[i]);
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Erro ao reordenar etiquetas:', error);
+      return false;
+    }
+  }
+};
+
+// Funções para Etiquetas em Conversas
+export const ConversationLabelDB = {
+  async setLabel(userId, labelId) {
+    if (!isConnected) return false;
+
+    try {
+      const { error } = await supabase
+        .from('conversations')
+        .update({
+          label_id: labelId,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      return true;
+    } catch (error) {
+      console.error('Erro ao definir etiqueta da conversa:', error);
+      return false;
+    }
+  },
+
+  async removeLabel(userId) {
+    if (!isConnected) return false;
+
+    try {
+      const { error } = await supabase
+        .from('conversations')
+        .update({
+          label_id: null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      return true;
+    } catch (error) {
+      console.error('Erro ao remover etiqueta da conversa:', error);
+      return false;
+    }
+  },
+
+  async getConversationsByLabel(labelId) {
+    if (!isConnected) return [];
+
+    try {
+      const { data, error } = await supabase
+        .from('conversations')
+        .select('*')
+        .eq('label_id', labelId)
+        .order('last_timestamp', { ascending: false });
+
+      if (error) throw error;
+
+      return data.map(row => ({
+        userId: row.user_id,
+        userName: row.user_name,
+        messages: row.messages || [],
+        lastMessage: row.last_message,
+        lastTimestamp: row.last_timestamp,
+        unread: row.unread || 0,
+        labelId: row.label_id
+      }));
+    } catch (error) {
+      console.error('Erro ao buscar conversas por etiqueta:', error);
+      return [];
     }
   }
 };

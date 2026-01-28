@@ -1,0 +1,137 @@
+.label-selector {
+  position: relative;
+}
+
+.label-selector-trigger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s;
+}
+
+.label-selector-trigger:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.label-selector-trigger .current-label {
+  padding: 3px 10px;
+  border-radius: 10px;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.label-selector-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 100;
+  margin-top: 4px;
+}
+
+.dropdown-header {
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.label-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.label-option:hover {
+  background: var(--bg-hover);
+}
+
+.label-option.selected {
+  background: var(--bg-secondary);
+}
+
+.label-option .label-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.label-option .label-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.label-option .check-icon {
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+.label-option.remove-label {
+  color: #f44336;
+}
+
+.label-option.remove-label:hover {
+  background: #ffebee;
+}
+
+.label-option.manage-labels {
+  color: var(--primary-color);
+}
+
+.label-option.manage-labels:hover {
+  background: var(--bg-secondary);
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 4px 0;
+}
+
+.no-labels {
+  padding: 16px 12px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* Responsivo */
+@media (max-width: 480px) {
+  .label-selector-dropdown {
+    right: auto;
+    left: 0;
+  }
+}

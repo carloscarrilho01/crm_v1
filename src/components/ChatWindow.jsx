@@ -7,6 +7,7 @@ import QuickMessagesBar from './QuickMessagesBar'
 import QuickMessagesManager from './QuickMessagesManager'
 import SignatureManager from './SignatureManager'
 import CustomAudioPlayer from './CustomAudioPlayer'
+import LabelSelector from './LabelSelector'
 import './ChatWindow.css'
 import './FileUploader.css'
 
@@ -114,7 +115,7 @@ function ImagePreview({ src, alt }) {
   );
 }
 
-function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket, conversations, onSelectConversation, loadingConversation = false }) {
+function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket, conversations, onSelectConversation, loadingConversation = false, labels = [], onManageLabels, onLabelChange }) {
   // ==================== DEBUG CRÍTICO ====================
   console.log('🚨🚨🚨 CHATWINDOW RENDERIZOU! 🚨🚨🚨');
   console.log('Conversa userId:', conversation?.userId);
@@ -308,6 +309,12 @@ function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket, c
           </div>
         </div>
         <div className="chat-header-actions">
+          <LabelSelector
+            labels={labels}
+            currentLabelId={conversation.labelId}
+            onSelect={(labelId) => onLabelChange?.(conversation.userId, labelId)}
+            onManageLabels={onManageLabels}
+          />
           <button
             className={`icon-button trava-button ${isTravado ? 'travado' : ''}`}
             onClick={toggleTrava}

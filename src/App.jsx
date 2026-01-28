@@ -9,6 +9,7 @@ import Sidebar from './components/Sidebar'
 import MobileNav from './components/MobileNav'
 import ChatWindow from './components/ChatWindow'
 import NewConversationModal from './components/NewConversationModal'
+import LabelManager from './components/LabelManager'
 import './App.css'
 
 // Lazy loading de componentes pesados com preload
@@ -39,6 +40,8 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [loadingConversation, setLoadingConversation] = useState(false)
   const [showNewConversationModal, setShowNewConversationModal] = useState(false)
+  const [showLabelManager, setShowLabelManager] = useState(false)
+  const [labels, setLabels] = useState([])
 
   // Callbacks estabilizados com useCallback
   const fetchConversations = useCallback(async () => {
@@ -50,6 +53,17 @@ function App() {
     } catch (error) {
       console.error('Erro ao carregar conversas:', error)
       setLoading(false)
+    }
+  }, [])
+
+  // Carregar etiquetas
+  const fetchLabels = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/labels`)
+      const data = await response.json()
+      setLabels(data)
+    } catch (error) {
+      console.error('Erro ao carregar etiquetas:', error)
     }
   }, [])
 
@@ -77,6 +91,19 @@ function App() {
     })
   }, [])
 
+  // Handler de atualização de label de conversa
+  const handleConversationLabelUpdated = useCallback(({ userId, labelId }) => {
+    setConversations(prev =>
+      prev.map(c => c.userId === userId ? { ...c, labelId } : c)
+    )
+    setSelectedConversation(prev => {
+      if (prev?.userId === userId) {
+        return { ...prev, labelId }
+      }
+      return prev
+    })
+  }, [])
+
   // Carrega conversas iniciais - só executa se usuário estiver autenticado
   useEffect(() => {
     if (!user || !socket) return
@@ -86,15 +113,22 @@ function App() {
       fetchConversations()
     }
 
+    // Carrega etiquetas
+    fetchLabels()
+
     // Escuta mensagens via WebSocket
     on('init', handleInit)
     on('message', handleMessage)
+    on('labels-updated', fetchLabels)
+    on('conversation-label-updated', handleConversationLabelUpdated)
 
     return () => {
       off('init', handleInit)
       off('message', handleMessage)
+      off('labels-updated', fetchLabels)
+      off('conversation-label-updated', handleConversationLabelUpdated)
     }
-  }, [user, socket, on, off, fetchConversations, handleInit, handleMessage])
+  }, [user, socket, on, off, fetchConversations, fetchLabels, handleInit, handleMessage, handleConversationLabelUpdated])
 
   // Preload de componentes lazy quando usuário está autenticado
   useEffect(() => {
@@ -229,6 +263,32 @@ function App() {
     setShowNewConversationModal(true)
   }, [])
 
+  // Handler para mudança de etiqueta
+  const handleLabelChange = useCallback(async (userId, labelId) => {
+    try {
+      const response = await fetch(`${API_URL}/api/conversations/${userId}/label`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ labelId })
+      })
+
+      if (response.ok) {
+        // Atualiza localmente
+        setConversations(prev =>
+          prev.map(c => c.userId === userId ? { ...c, labelId } : c)
+        )
+        setSelectedConversation(prev => {
+          if (prev?.userId === userId) {
+            return { ...prev, labelId }
+          }
+          return prev
+        })
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar etiqueta:', error)
+    }
+  }, [])
+
   const handleConversationCreated = useCallback((newConversation) => {
     setConversations(prev => [newConversation, ...prev])
     setSelectedConversation(newConversation)
@@ -298,6 +358,8 @@ function App() {
             onNavigateToStock={() => setCurrentView('stock')}
             onNavigateToOS={() => setCurrentView('os')}
             loading={loading}
+            labels={labels}
+            onManageLabels={() => setShowLabelManager(true)}
           />
           <ChatWindow
             conversation={selectedConversation}
@@ -307,6 +369,9 @@ function App() {
             conversations={conversations}
             onSelectConversation={handleSelectConversation}
             loadingConversation={loadingConversation}
+            labels={labels}
+            onManageLabels={() => setShowLabelManager(true)}
+            onLabelChange={handleLabelChange}
           />
         </>
       ) : currentView === 'crm' ? (
@@ -407,6 +472,15 @@ function App() {
         <NewConversationModal
           onClose={() => setShowNewConversationModal(false)}
           onConversationCreated={handleConversationCreated}
+        />
+      )}
+
+      {showLabelManager && (
+        <LabelManager
+          isOpen={showLabelManager}
+          onClose={() => setShowLabelManager(false)}
+          labels={labels}
+          onLabelsChange={fetchLabels}
         />
       )}
     </div>

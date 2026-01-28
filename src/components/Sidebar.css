@@ -305,6 +305,103 @@
   }
 }
 
+/* Botão de etiquetas */
+.labels-btn {
+  background: transparent;
+}
+
+.labels-btn:hover {
+  background: var(--bg-hover);
+  color: var(--primary-color);
+}
+
+/* Botão de filtro por etiqueta */
+.filter-label-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--text-secondary);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.filter-label-btn:hover,
+.filter-label-btn.active {
+  background: var(--bg-hover);
+  color: var(--primary-color);
+}
+
+/* Barra de filtro por etiquetas */
+.label-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+  padding-bottom: 4px;
+}
+
+.label-filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.label-filter-chip:hover {
+  border-color: var(--primary-color);
+  color: var(--text-primary);
+}
+
+.label-filter-chip.active {
+  color: white;
+  border-color: transparent;
+}
+
+.label-filter-chip:first-child.active {
+  background: var(--primary-color);
+}
+
+.chip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.label-filter-chip.active .chip-dot {
+  background: white !important;
+}
+
+/* Etiqueta na conversa */
+.conversation-label {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.label-badge-small {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 8px;
+  color: white;
+  font-size: 11px;
+  font-weight: 500;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Responsividade - Esconde sidebar em mobile */
 @media (max-width: 768px) {
   .sidebar {

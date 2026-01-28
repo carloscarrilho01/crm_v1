@@ -5,7 +5,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { connectDatabase, ConversationDB, QuickMessageDB, LeadDB, ServiceOrderDB } from './database.js';
+import { connectDatabase, ConversationDB, QuickMessageDB, LeadDB, ServiceOrderDB, LabelDB, ConversationLabelDB } from './database.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1169,6 +1169,172 @@ app.post('/api/conversations/:userId/send', writeLimiter, async (req, res) => {
 });
 
 // Evolution API integration removed
+
+// ==========================================
+// Rotas de Etiquetas (Labels)
+// ==========================================
+
+// GET /api/labels - Lista todas as etiquetas
+app.get('/api/labels', async (req, res) => {
+  try {
+    const labels = await LabelDB.findAll();
+    res.json(labels);
+  } catch (error) {
+    console.error('Erro ao buscar etiquetas:', error);
+    res.status(500).json({ error: 'Erro ao buscar etiquetas' });
+  }
+});
+
+// GET /api/labels/:id - Busca uma etiqueta específica
+app.get('/api/labels/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const label = await LabelDB.findById(id);
+
+    if (!label) {
+      return res.status(404).json({ error: 'Etiqueta não encontrada' });
+    }
+
+    res.json(label);
+  } catch (error) {
+    console.error('Erro ao buscar etiqueta:', error);
+    res.status(500).json({ error: 'Erro ao buscar etiqueta' });
+  }
+});
+
+// POST /api/labels - Cria nova etiqueta
+app.post('/api/labels', writeLimiter, async (req, res) => {
+  try {
+    const { name, color } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ error: 'O campo "name" é obrigatório' });
+    }
+
+    const label = await LabelDB.create({ name, color });
+
+    if (!label) {
+      return res.status(500).json({ error: 'Erro ao criar etiqueta' });
+    }
+
+    // Emite evento WebSocket para atualizar todos os clientes
+    io.emit('labels-updated');
+
+    res.status(201).json(label);
+  } catch (error) {
+    console.error('Erro ao criar etiqueta:', error);
+    res.status(500).json({ error: 'Erro ao criar etiqueta' });
+  }
+});
+
+// PUT /api/labels/:id - Atualiza etiqueta
+app.put('/api/labels/:id', writeLimiter, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, color } = req.body;
+
+    const label = await LabelDB.update(id, { name, color });
+
+    if (!label) {
+      return res.status(404).json({ error: 'Etiqueta não encontrada' });
+    }
+
+    // Emite evento WebSocket para atualizar todos os clientes
+    io.emit('labels-updated');
+
+    res.json(label);
+  } catch (error) {
+    console.error('Erro ao atualizar etiqueta:', error);
+    res.status(500).json({ error: 'Erro ao atualizar etiqueta' });
+  }
+});
+
+// DELETE /api/labels/:id - Remove etiqueta
+app.delete('/api/labels/:id', writeLimiter, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const success = await LabelDB.delete(id);
+
+    if (!success) {
+      return res.status(404).json({ error: 'Etiqueta não encontrada' });
+    }
+
+    // Emite evento WebSocket para atualizar todos os clientes
+    io.emit('labels-updated');
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Erro ao deletar etiqueta:', error);
+    res.status(500).json({ error: 'Erro ao deletar etiqueta' });
+  }
+});
+
+// POST /api/labels/reorder - Reordena etiquetas
+app.post('/api/labels/reorder', writeLimiter, async (req, res) => {
+  try {
+    const { orderedIds } = req.body;
+
+    if (!Array.isArray(orderedIds)) {
+      return res.status(400).json({ error: 'orderedIds deve ser um array' });
+    }
+
+    const success = await LabelDB.reorder(orderedIds);
+
+    if (!success) {
+      return res.status(500).json({ error: 'Erro ao reordenar etiquetas' });
+    }
+
+    // Emite evento WebSocket para atualizar todos os clientes
+    io.emit('labels-updated');
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Erro ao reordenar etiquetas:', error);
+    res.status(500).json({ error: 'Erro ao reordenar etiquetas' });
+  }
+});
+
+// PUT /api/conversations/:userId/label - Define etiqueta de uma conversa
+app.put('/api/conversations/:userId/label', writeLimiter, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { labelId } = req.body;
+
+    let success;
+    if (labelId) {
+      success = await ConversationLabelDB.setLabel(userId, labelId);
+    } else {
+      success = await ConversationLabelDB.removeLabel(userId);
+    }
+
+    if (!success) {
+      return res.status(500).json({ error: 'Erro ao atualizar etiqueta da conversa' });
+    }
+
+    // Busca a conversa atualizada
+    const conversation = await ConversationDB.findByUserId(userId);
+
+    // Emite evento WebSocket para atualizar todos os clientes
+    io.emit('conversation-label-updated', { userId, labelId: labelId || null });
+
+    res.json({ success: true, labelId: labelId || null });
+  } catch (error) {
+    console.error('Erro ao definir etiqueta da conversa:', error);
+    res.status(500).json({ error: 'Erro ao definir etiqueta da conversa' });
+  }
+});
+
+// GET /api/labels/:id/conversations - Lista conversas por etiqueta
+app.get('/api/labels/:id/conversations', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const conversations = await ConversationLabelDB.getConversationsByLabel(id);
+    res.json(conversations);
+  } catch (error) {
+    console.error('Erro ao buscar conversas por etiqueta:', error);
+    res.status(500).json({ error: 'Erro ao buscar conversas por etiqueta' });
+  }
+});
 
 // ==========================================
 // Rotas de Ordens de Serviço (OS)

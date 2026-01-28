@@ -1,12 +1,25 @@
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { formatConversationTime } from '../utils/dateFormatters'
 import './Sidebar.css'
 
-function Sidebar({ conversations, selectedConversation, onSelectConversation, loading, onNewConversation, onNavigateToCRM, onNavigateToAnalytics, onNavigateToStock, onNavigateToOS }) {
+function Sidebar({ conversations, selectedConversation, onSelectConversation, loading, onNewConversation, onNavigateToCRM, onNavigateToAnalytics, onNavigateToStock, onNavigateToOS, labels = [], onManageLabels }) {
   const { signOut } = useAuth()
   const { isDark, toggleTheme } = useTheme()
+  const [filterLabelId, setFilterLabelId] = useState(null)
+  const [showLabelFilter, setShowLabelFilter] = useState(false)
+
+  // Cria um mapa de labels para acesso rápido
+  const labelsMap = labels.reduce((acc, label) => {
+    acc[label.id] = label
+    return acc
+  }, {})
+
+  // Filtra conversas por etiqueta
+  const filteredConversations = filterLabelId
+    ? conversations.filter(c => c.labelId === filterLabelId)
+    : conversations
 
   const formatTime = useCallback((timestamp) => {
     try {
@@ -58,6 +71,15 @@ function Sidebar({ conversations, selectedConversation, onSelectConversation, lo
             </svg>
           </button>
           <button
+            className="icon-button labels-btn"
+            onClick={onManageLabels}
+            title="Gerenciar Etiquetas"
+          >
+            <svg viewBox="0 0 24 24" width="24" height="24">
+              <path fill="currentColor" d="M5.5,7A1.5,1.5 0 0,1 4,5.5A1.5,1.5 0 0,1 5.5,4A1.5,1.5 0 0,1 7,5.5A1.5,1.5 0 0,1 5.5,7M21.41,11.58L12.41,2.58C12.05,2.22 11.55,2 11,2H4C2.89,2 2,2.89 2,4V11C2,11.55 2.22,12.05 2.59,12.41L11.58,21.41C11.95,21.77 12.45,22 13,22C13.55,22 14.05,21.77 14.41,21.41L21.41,14.41C21.78,14.05 22,13.55 22,13C22,12.44 21.77,11.94 21.41,11.58Z" />
+            </svg>
+          </button>
+          <button
             className="icon-button theme-toggle-btn"
             onClick={toggleTheme}
             title={isDark ? 'Modo Claro' : 'Modo Escuro'}
@@ -99,48 +121,107 @@ function Sidebar({ conversations, selectedConversation, onSelectConversation, lo
             <path fill="currentColor" d="M15.5,14H14.71L14.43,13.73C15.41,12.59 16,11.11 16,9.5C16,5.91 13.09,3 9.5,3C5.91,3 3,5.91 3,9.5C3,13.09 5.91,16 9.5,16C11.11,16 12.59,15.41 13.73,14.43L14,14.71V15.5L19,20.5L20.5,19L15.5,14M9.5,14C7.01,14 5,11.99 5,9.5C5,7.01 7.01,5 9.5,5C11.99,5 14,7.01 14,9.5C14,11.99 11.99,14 9.5,14Z" />
           </svg>
           <input type="text" placeholder="Pesquisar conversas" />
+          {labels.length > 0 && (
+            <button
+              className={`filter-label-btn ${showLabelFilter ? 'active' : ''}`}
+              onClick={() => setShowLabelFilter(!showLabelFilter)}
+              title="Filtrar por etiqueta"
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18">
+                <path fill="currentColor" d="M14,12V19.88C14.04,20.18 13.94,20.5 13.71,20.71C13.32,21.1 12.69,21.1 12.3,20.71L10.29,18.7C10.06,18.47 9.96,18.16 10,17.87V12H9.97L4.21,4.62C3.87,4.19 3.95,3.56 4.38,3.22C4.57,3.08 4.78,3 5,3H19C19.22,3 19.43,3.08 19.62,3.22C20.05,3.56 20.13,4.19 19.79,4.62L14.03,12H14Z" />
+              </svg>
+            </button>
+          )}
         </div>
+
+        {/* Filtro por etiquetas */}
+        {showLabelFilter && labels.length > 0 && (
+          <div className="label-filter-bar">
+            <button
+              className={`label-filter-chip ${filterLabelId === null ? 'active' : ''}`}
+              onClick={() => setFilterLabelId(null)}
+            >
+              Todas
+            </button>
+            {labels.map(label => (
+              <button
+                key={label.id}
+                className={`label-filter-chip ${filterLabelId === label.id ? 'active' : ''}`}
+                onClick={() => setFilterLabelId(label.id)}
+                style={{
+                  '--label-color': label.color,
+                  backgroundColor: filterLabelId === label.id ? label.color : undefined
+                }}
+              >
+                <span className="chip-dot" style={{ backgroundColor: label.color }} />
+                {label.name}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="conversations-list">
         {loading ? (
           <div className="loading">Carregando conversas...</div>
-        ) : conversations.length === 0 ? (
+        ) : filteredConversations.length === 0 ? (
           <div className="empty-state">
-            <p>Nenhuma conversa ainda</p>
-            <small>As conversas do n8n aparecerão aqui</small>
+            {filterLabelId ? (
+              <>
+                <p>Nenhuma conversa com esta etiqueta</p>
+                <small>Remova o filtro para ver todas as conversas</small>
+              </>
+            ) : (
+              <>
+                <p>Nenhuma conversa ainda</p>
+                <small>As conversas do n8n aparecerão aqui</small>
+              </>
+            )}
           </div>
         ) : (
-          conversations.map((conversation) => (
-            <div
-              key={conversation.userId}
-              className={`conversation-item ${
-                selectedConversation?.userId === conversation.userId ? 'active' : ''
-              }`}
-              onClick={() => onSelectConversation(conversation)}
-            >
-              <div className="conversation-avatar">
-                <svg viewBox="0 0 24 24" width="40" height="40">
-                  <path fill="currentColor" d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" />
-                </svg>
-              </div>
+          filteredConversations.map((conversation) => {
+            const conversationLabel = conversation.labelId ? labelsMap[conversation.labelId] : null
+            return (
+              <div
+                key={conversation.userId}
+                className={`conversation-item ${
+                  selectedConversation?.userId === conversation.userId ? 'active' : ''
+                }`}
+                onClick={() => onSelectConversation(conversation)}
+              >
+                <div className="conversation-avatar">
+                  <svg viewBox="0 0 24 24" width="40" height="40">
+                    <path fill="currentColor" d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" />
+                  </svg>
+                </div>
 
-              <div className="conversation-info">
-                <div className="conversation-header">
-                  <h3 className="conversation-name">{conversation.userName}</h3>
-                  <span className="conversation-time">
-                    {formatTime(conversation.lastTimestamp)}
-                  </span>
-                </div>
-                <div className="conversation-preview">
-                  <p className="last-message">{conversation.lastMessage}</p>
-                  {conversation.unread > 0 && (
-                    <span className="unread-badge">{conversation.unread}</span>
+                <div className="conversation-info">
+                  <div className="conversation-header">
+                    <h3 className="conversation-name">{conversation.userName}</h3>
+                    <span className="conversation-time">
+                      {formatTime(conversation.lastTimestamp)}
+                    </span>
+                  </div>
+                  {conversationLabel && (
+                    <div className="conversation-label">
+                      <span
+                        className="label-badge-small"
+                        style={{ backgroundColor: conversationLabel.color }}
+                      >
+                        {conversationLabel.name}
+                      </span>
+                    </div>
                   )}
+                  <div className="conversation-preview">
+                    <p className="last-message">{conversation.lastMessage}</p>
+                    {conversation.unread > 0 && (
+                      <span className="unread-badge">{conversation.unread}</span>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
+            )
+          })
         )}
       </div>
     </div>
