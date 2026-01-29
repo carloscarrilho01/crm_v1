@@ -1409,9 +1409,6 @@ app.post('/api/service-orders', writeLimiter, async (req, res) => {
 
     console.log('✅ OS criada com sucesso:', order.numeroOs);
 
-    // Emite evento WebSocket
-    io.emit('os-created', order);
-
     res.status(201).json(order);
   } catch (error) {
     console.error('❌ Erro ao criar ordem de serviço:', error);
@@ -1436,9 +1433,6 @@ app.put('/api/service-orders/:id', writeLimiter, async (req, res) => {
     if (!order) {
       return res.status(404).json({ error: 'Ordem de serviço não encontrada' });
     }
-
-    // Emite evento WebSocket
-    io.emit('os-updated', order);
 
     res.json(order);
   } catch (error) {
@@ -1466,9 +1460,6 @@ app.put('/api/service-orders/:id/status', writeLimiter, async (req, res) => {
       return res.status(404).json({ error: 'Ordem de serviço não encontrada' });
     }
 
-    // Emite evento WebSocket
-    io.emit('os-status-updated', order);
-
     res.json(order);
   } catch (error) {
     console.error('Erro ao atualizar status da OS:', error);
@@ -1483,9 +1474,6 @@ app.delete('/api/service-orders/:id', writeLimiter, async (req, res) => {
     if (!success) {
       return res.status(404).json({ error: 'Ordem de serviço não encontrada' });
     }
-
-    // Emite evento WebSocket
-    io.emit('os-deleted', { id: req.params.id });
 
     res.json({ success: true });
   } catch (error) {

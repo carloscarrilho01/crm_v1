@@ -2,6 +2,7 @@ import { memo, useCallback, useState, useMemo } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { formatConversationTime } from '../utils/dateFormatters'
+import { ConversationListSkeleton } from './SkeletonLoader'
 import './Sidebar.css'
 
 function Sidebar({ conversations, selectedConversation, onSelectConversation, loading, onNewConversation, onNavigateToCRM, onNavigateToAnalytics, onNavigateToStock, onNavigateToOS, labels = [], onManageLabels }) {
@@ -201,7 +202,7 @@ function Sidebar({ conversations, selectedConversation, onSelectConversation, lo
 
       <div className="conversations-list">
         {loading ? (
-          <div className="loading">Carregando conversas...</div>
+          <ConversationListSkeleton count={8} />
         ) : filteredConversations.length === 0 ? (
           <div className="empty-state">
             {activeTab === 'on-hold' ? (

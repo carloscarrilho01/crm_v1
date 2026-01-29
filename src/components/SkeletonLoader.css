@@ -1,0 +1,397 @@
+/* ===================================
+   SKELETON LOADERS
+   =================================== */
+
+/* Animação de pulse */
+@keyframes skeleton-pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-pulse {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  background: linear-gradient(
+    90deg,
+    var(--bg-tertiary) 25%,
+    var(--bg-hover) 50%,
+    var(--bg-tertiary) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+/* ===================================
+   CONVERSATION SKELETON
+   =================================== */
+
+.conversation-skeleton {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.conversation-skeleton .skeleton-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.conversation-skeleton .skeleton-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.conversation-skeleton .skeleton-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.conversation-skeleton .skeleton-name {
+  width: 120px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.conversation-skeleton .skeleton-time {
+  width: 40px;
+  height: 12px;
+  border-radius: 4px;
+}
+
+.conversation-skeleton .skeleton-message {
+  width: 80%;
+  height: 12px;
+  border-radius: 4px;
+}
+
+.conversation-list-skeleton {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===================================
+   MESSAGE SKELETON
+   =================================== */
+
+.message-skeleton {
+  display: flex;
+  padding: 4px 16px;
+  margin-bottom: 4px;
+}
+
+.message-skeleton.incoming {
+  justify-content: flex-start;
+}
+
+.message-skeleton.outgoing {
+  justify-content: flex-end;
+}
+
+.message-skeleton .skeleton-bubble {
+  max-width: 65%;
+  min-width: 120px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.message-skeleton.incoming .skeleton-bubble {
+  background: var(--msg-in-bg);
+  border-bottom-left-radius: 4px;
+}
+
+.message-skeleton.outgoing .skeleton-bubble {
+  background: var(--msg-out-bg);
+  border-bottom-right-radius: 4px;
+}
+
+.skeleton-text-line {
+  height: 10px;
+  border-radius: 4px;
+}
+
+.message-list-skeleton {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 0;
+}
+
+/* ===================================
+   LOADING SPINNER
+   =================================== */
+
+.loading-spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.loading-spinner-container.small {
+  transform: scale(0.6);
+}
+
+.loading-spinner-container.medium {
+  transform: scale(0.8);
+}
+
+.loading-spinner-container.large {
+  transform: scale(1);
+}
+
+.loading-spinner {
+  position: relative;
+  width: 50px;
+  height: 50px;
+}
+
+.spinner-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 3px solid transparent;
+  border-radius: 50%;
+  animation: spinner-rotate 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+.spinner-ring:nth-child(1) {
+  border-top-color: var(--accent-primary);
+  animation-delay: -0.45s;
+}
+
+.spinner-ring:nth-child(2) {
+  border-top-color: var(--text-secondary);
+  animation-delay: -0.3s;
+  width: 80%;
+  height: 80%;
+  top: 10%;
+  left: 10%;
+}
+
+.spinner-ring:nth-child(3) {
+  border-top-color: var(--text-muted);
+  animation-delay: -0.15s;
+  width: 60%;
+  height: 60%;
+  top: 20%;
+  left: 20%;
+}
+
+@keyframes spinner-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* ===================================
+   LOADING OVERLAY
+   =================================== */
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fade-in 0.2s ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ===================================
+   CHAT HEADER SKELETON
+   =================================== */
+
+.chat-header-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.chat-header-skeleton .skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.chat-header-skeleton .skeleton-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chat-header-skeleton .skeleton-name {
+  width: 140px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.chat-header-skeleton .skeleton-status {
+  width: 80px;
+  height: 10px;
+  border-radius: 4px;
+}
+
+/* ===================================
+   GLOBAL LOADING STATES
+   =================================== */
+
+.app-loading {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+}
+
+.spinner-large {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--accent-primary);
+  border-radius: 50%;
+  animation: spinner-rotate 0.8s linear infinite;
+}
+
+/* Loading dentro do chat */
+.chat-loading {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: var(--bg-primary);
+}
+
+.chat-loading-text {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* Loading inline para botões */
+.btn-loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.btn-loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spinner-rotate 0.6s linear infinite;
+}
+
+/* ===================================
+   SMOOTH TRANSITIONS
+   =================================== */
+
+.fade-enter {
+  opacity: 0;
+}
+
+.fade-enter-active {
+  opacity: 1;
+  transition: opacity 200ms ease-in;
+}
+
+.fade-exit {
+  opacity: 1;
+}
+
+.fade-exit-active {
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+}
+
+/* Slide transition para mensagens */
+.slide-up-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.slide-up-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 200ms ease-out, transform 200ms ease-out;
+}
+
+/* Loading for conversation switch */
+.conversation-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 10;
+  animation: fade-in 0.15s ease-out;
+}
+
+.conversation-loading .loading-spinner {
+  width: 40px;
+  height: 40px;
+}
+
+.conversation-loading .loading-text {
+  font-size: 13px;
+  color: var(--text-muted);
+}

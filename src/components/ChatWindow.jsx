@@ -8,12 +8,9 @@ import QuickMessagesManager from './QuickMessagesManager'
 import SignatureManager from './SignatureManager'
 import CustomAudioPlayer from './CustomAudioPlayer'
 import LabelSelector from './LabelSelector'
+import { MessageListSkeleton, LoadingSpinner } from './SkeletonLoader'
 import './ChatWindow.css'
 import './FileUploader.css'
-
-// ==================== DEBUG - EXECUTA IMEDIATAMENTE ====================
-console.log('🔥🔥🔥 CHATWINDOW.JSX CARREGADO! Versão:', new Date().toISOString());
-// =======================================================================
 
 // Componente para preview de imagem com tratamento de erro
 function ImagePreview({ src, alt }) {
@@ -21,57 +18,12 @@ function ImagePreview({ src, alt }) {
   const [hasError, setHasError] = useState(false);
   const [imageSrc, setImageSrc] = useState(src);
 
-  // Log inicial para debug
-  useEffect(() => {
-    console.group('🖼️ ImagePreview iniciado');
-    console.log('Src recebido:', src ? 'SIM' : 'NÃO');
-    console.log('Src length:', src?.length);
-    console.log('Src prefix (60 chars):', src?.substring(0, 60));
-    console.log('Começa com data:image:', src?.startsWith('data:image/'));
-
-    if (src?.startsWith('data:')) {
-      const mimeMatch = src.match(/data:([^;]+);/);
-      console.log('MIME type detectado:', mimeMatch?.[1]);
-    } else {
-      console.warn('⚠️ SRC NÃO COMEÇA COM data:');
-    }
-    console.groupEnd();
-  }, [src]);
-
   const handleLoad = () => {
     setIsLoading(false);
     setHasError(false);
-    console.log('✅ Imagem carregada com sucesso');
   };
 
-  const handleError = (e) => {
-    console.group('❌ Erro ao carregar imagem');
-    console.error('Event:', e);
-    console.error('Tipo do erro:', e.type);
-    console.error('Src length:', src?.length);
-    console.error('Src prefix:', src?.substring(0, 80));
-
-    // Verifica se é base64 válido
-    if (src?.startsWith('data:image/')) {
-      const parts = src.split(',');
-      console.error('MIME type:', src.match(/data:([^;]+);/)?.[1]);
-      console.error('Has base64 data:', parts.length > 1);
-      if (parts.length > 1) {
-        console.error('Base64 length:', parts[1]?.length);
-        // Testa se base64 é válido
-        try {
-          atob(parts[1].substring(0, 100));
-          console.error('✅ Base64 parece válido');
-        } catch (err) {
-          console.error('❌ Base64 inválido:', err.message);
-        }
-      }
-    } else {
-      console.error('⚠️ PROBLEMA: Imagem não começa com data:image/');
-      console.error('Começa com:', src?.substring(0, 20));
-    }
-    console.groupEnd();
-
+  const handleError = () => {
     setIsLoading(false);
     setHasError(true);
   };
@@ -116,13 +68,6 @@ function ImagePreview({ src, alt }) {
 }
 
 function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket, conversations, onSelectConversation, loadingConversation = false, labels = [], onManageLabels, onLabelChange }) {
-  // ==================== DEBUG CRÍTICO ====================
-  console.log('🚨🚨🚨 CHATWINDOW RENDERIZOU! 🚨🚨🚨');
-  console.log('Conversa userId:', conversation?.userId);
-  console.log('Total de mensagens:', conversation?.messages?.length);
-  console.log('Loading conversation:', loadingConversation);
-  // ==================== FIM DEBUG ====================
-
   const [message, setMessage] = useState('')
   const [showManager, setShowManager] = useState(false)
   const [showSignatureManager, setShowSignatureManager] = useState(false)
@@ -336,37 +281,18 @@ function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket, c
 
       <div className="chat-messages" ref={messagesContainerRef}>
         <div className="messages-container">
-          {loadingConversation && !conversation ? (
-            <div className="loading-conversation">
-              <div className="loading-spinner-medium"></div>
-              <span>Carregando conversa...</span>
+          {loadingConversation ? (
+            <div className="conversation-loading">
+              <LoadingSpinner size="medium" text="Carregando conversa..." />
             </div>
           ) : null}
           {isLoadingMore && (
             <div className="loading-more-messages">
-              <div className="loading-spinner-small"></div>
+              <LoadingSpinner size="small" />
               <span>Carregando mensagens anteriores...</span>
             </div>
           )}
-          {(() => {
-            // FORÇA log de TODAS as mensagens para debug
-            console.log('=====================================================');
-            console.log('📊 TOTAL DE MENSAGENS NA CONVERSA:', conversation.messages.length);
-            console.log('=====================================================');
-            conversation.messages.forEach((msg, index) => {
-              console.log(`\n--- Mensagem ${index + 1} ---`);
-              console.log('type:', msg.type);
-              console.log('text length:', msg.text?.length);
-              console.log('text prefix:', msg.text?.substring(0, 60));
-              console.log('fileUrl:', msg.fileUrl ? `EXISTE (${msg.fileUrl.length} chars)` : 'NÃO EXISTE');
-              console.log('fileCategory:', msg.fileCategory);
-              console.log('audioUrl:', msg.audioUrl ? 'EXISTE' : 'NÃO EXISTE');
-              console.log('isBot:', msg.isBot, '| isAgent:', msg.isAgent);
-            });
-            console.log('=====================================================\n');
-          })()}
-          {conversation.messages.map((msg) => {
-            return (
+          {!loadingConversation && conversation.messages.map((msg) => (
             <div
               key={msg.id}
               className={`message ${msg.isBot ? 'bot' : msg.isAgent ? 'agent' : 'user'}`}
@@ -415,8 +341,7 @@ function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket, c
                 </div>
               </div>
             </div>
-            );
-          })}
+          ))}
           <div ref={messagesEndRef} />
         </div>
       </div>

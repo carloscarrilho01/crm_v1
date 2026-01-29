@@ -10,6 +10,7 @@ import MobileNav from './components/MobileNav'
 import ChatWindow from './components/ChatWindow'
 import NewConversationModal from './components/NewConversationModal'
 import LabelManager from './components/LabelManager'
+import { LoadingSpinner } from './components/SkeletonLoader'
 import './App.css'
 
 // Lazy loading de componentes pesados com preload
@@ -26,7 +27,7 @@ const ServiceOrders = lazy(serviceOrdersLoader)
 // Loading component para Suspense
 const LoadingFallback = () => (
   <div className="app-loading">
-    <div className="spinner-large"></div>
+    <LoadingSpinner size="large" text="Carregando..." />
   </div>
 )
 
@@ -339,7 +340,7 @@ function App() {
   if (authLoading) {
     return (
       <div className="app-loading">
-        <div className="spinner-large"></div>
+        <LoadingSpinner size="large" text="Verificando autenticação..." />
       </div>
     )
   }
