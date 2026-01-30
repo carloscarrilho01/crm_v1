@@ -409,23 +409,55 @@
 @media (max-width: 768px) {
   /* Ajusta chat window para mobile */
   .chat-window {
-    padding-top: 0;
-    padding-bottom: 70px;
-  }
-
-  /* Ajusta header do chat para ficar no topo */
-  .chat-header {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 99;
+    bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height para mobile */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
 
-  /* Ajusta a área de mensagens */
+  /* Ajusta header do chat para ficar no topo */
+  .chat-header {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    z-index: 10;
+    flex-shrink: 0;
+  }
+
+  /* Ajusta a área de mensagens - área principal com scroll */
   .chat-messages {
-    padding-top: 60px; /* Compensa o header fixo */
-    padding-bottom: 0;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch; /* Scroll suave no iOS */
+    padding-top: 12px;
+    padding-bottom: 12px;
+    padding-left: 8px;
+    padding-right: 8px;
+    min-height: 0; /* Importante para flex funcionar com overflow */
+  }
+
+  /* Container de mensagens */
+  .messages-container {
+    min-height: auto;
+  }
+
+  /* Input fixo na parte inferior */
+  .chat-input {
+    position: relative;
+    flex-shrink: 0;
+    padding-bottom: calc(70px + env(safe-area-inset-bottom)); /* Espaço para nav + safe area */
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
   }
 
   /* Ajusta tamanhos de fonte */
@@ -443,25 +475,28 @@
     width: 36px;
     height: 36px;
   }
+
+  /* Ajusta tamanho das mensagens */
+  .message-bubble {
+    max-width: 85%;
+  }
 }
 
 @media (max-width: 375px) {
-  .chat-window {
-    padding-top: 0;
-    padding-bottom: 65px;
-  }
-
   .chat-header {
-    top: 0;
     padding: 8px 12px;
   }
 
-  .chat-messages {
-    padding-top: 56px;
+  .chat-input {
+    padding-bottom: calc(65px + env(safe-area-inset-bottom));
   }
 
   .chat-header-info h3 {
     font-size: 14px;
+  }
+
+  .message-bubble {
+    max-width: 90%;
   }
 }
 
