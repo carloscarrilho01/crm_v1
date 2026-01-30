@@ -131,17 +131,18 @@
 
 .create-btn {
   padding: 10px 20px;
-  background: var(--primary-color);
+  background: var(--accent-primary, #25D366);
   color: white;
   border: none;
   border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
+  align-self: flex-start;
 }
 
 .create-btn:hover:not(:disabled) {
-  background: var(--primary-hover);
+  background: var(--accent-hover, #1da851);
 }
 
 .create-btn:disabled {
@@ -232,7 +233,7 @@
 
 .save-btn {
   padding: 6px 16px;
-  background: var(--primary-color);
+  background: var(--accent-primary, #25D366);
   color: white;
   border: none;
   border-radius: 6px;
@@ -241,7 +242,7 @@
 }
 
 .save-btn:hover:not(:disabled) {
-  background: var(--primary-hover);
+  background: var(--accent-hover, #1da851);
 }
 
 .cancel-btn {
