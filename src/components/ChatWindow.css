@@ -455,9 +455,16 @@
   .chat-input {
     position: relative;
     flex-shrink: 0;
-    padding-bottom: env(safe-area-inset-bottom, 8px); /* Safe area para iPhones */
+    padding: 8px 12px;
+    padding-bottom: max(8px, env(safe-area-inset-bottom)); /* Safe area para iPhones */
     background: var(--bg-secondary);
     border-top: 1px solid var(--border-color);
+  }
+
+  /* Barra de mensagens rápidas mais compacta */
+  .quick-messages-bar {
+    padding: 6px 8px;
+    max-height: 80px;
   }
 
   /* Ajusta tamanhos de fonte */
@@ -520,11 +527,6 @@
     min-height: 36px;
   }
 
-  /* Reduz padding do chat input em mobile */
-  .chat-input {
-    padding: 8px 12px;
-  }
-
   /* Garante que o input de mensagem não quebre o layout */
   .message-input {
     min-width: 0;
@@ -550,10 +552,6 @@
     padding: 4px;
     min-width: 32px;
     min-height: 32px;
-  }
-
-  .chat-input {
-    padding: 6px 8px;
   }
 
   .message-input {
