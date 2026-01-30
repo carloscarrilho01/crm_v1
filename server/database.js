@@ -854,13 +854,18 @@ export const LabelDB = {
   },
 
   async create(labelData) {
-    if (!isConnected) return null;
+    if (!isConnected) {
+      console.log('⚠️ Supabase não conectado, não é possível criar etiqueta');
+      return null;
+    }
 
     try {
+      console.log('📝 Criando etiqueta:', labelData);
+
       // Pega a maior ordem atual para colocar no final
       const { data: maxOrderData } = await supabase
         .from('labels')
-        .select('order')
+        .select('"order"')
         .order('order', { ascending: false })
         .limit(1);
 
@@ -871,12 +876,17 @@ export const LabelDB = {
         .insert({
           name: labelData.name,
           color: labelData.color || '#25D366',
-          order: labelData.order ?? nextOrder
+          "order": labelData.order ?? nextOrder
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro ao criar etiqueta no Supabase:', error);
+        throw error;
+      }
+
+      console.log('✅ Etiqueta criada com sucesso:', data.name);
 
       return {
         id: data.id,
