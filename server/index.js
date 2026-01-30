@@ -116,7 +116,7 @@ const conversations = new Map(); // Fallback para memória
 (async () => {
   useDatabase = await connectDatabase();
   if (useDatabase) {
-    console.log('💾 Usando MongoDB para persistência');
+    console.log('💾 Usando Supabase para persistência');
   } else {
     console.log('💭 Usando armazenamento em memória (dados serão perdidos ao reiniciar)');
   }
@@ -125,8 +125,16 @@ const conversations = new Map(); // Fallback para memória
 // Helper: Salvar conversa (DB ou memória)
 async function saveConversation(userId, data) {
   if (useDatabase) {
-    return await ConversationDB.createOrUpdate(userId, data);
+    console.log(`💾 Salvando conversa ${userId} no Supabase...`);
+    const result = await ConversationDB.createOrUpdate(userId, data);
+    if (result) {
+      console.log(`✅ Conversa ${userId} salva com sucesso`);
+    } else {
+      console.error(`❌ Falha ao salvar conversa ${userId}`);
+    }
+    return result;
   } else {
+    console.log(`💭 Salvando conversa ${userId} em memória (Supabase não conectado)`);
     conversations.set(userId, data);
     return data;
   }

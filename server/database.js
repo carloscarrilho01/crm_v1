@@ -129,9 +129,14 @@ export const ConversationDB = {
   },
 
   async createOrUpdate(userId, conversation) {
-    if (!isConnected) return conversation;
+    if (!isConnected) {
+      console.log('⚠️ Supabase não conectado, retornando conversa sem salvar');
+      return conversation;
+    }
 
     try {
+      console.log(`📝 Tentando upsert conversa ${userId} com ${conversation.messages?.length || 0} mensagens`);
+
       const { data, error } = await supabase
         .from('conversations')
         .upsert({
@@ -148,7 +153,12 @@ export const ConversationDB = {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro no upsert:', error.message, error.code);
+        throw error;
+      }
+
+      console.log(`✅ Upsert bem sucedido para ${userId}`);
 
       // Busca status de trava do lead
       const { data: leadData } = await supabase
