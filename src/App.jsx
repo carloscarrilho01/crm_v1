@@ -411,6 +411,7 @@ function App() {
             labels={labels}
             onManageLabels={() => setShowLabelManager(true)}
             onLabelChange={handleLabelChange}
+            onBack={() => setSelectedConversation(null)}
           />
         </>
       ) : currentView === 'crm' ? (

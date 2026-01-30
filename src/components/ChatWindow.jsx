@@ -118,7 +118,7 @@ const MessageBubble = memo(function MessageBubble({ msg, agentName }) {
   )
 })
 
-function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket, conversations, onSelectConversation, loadingConversation = false, labels = [], onManageLabels, onLabelChange }) {
+function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket, conversations, onSelectConversation, loadingConversation = false, labels = [], onManageLabels, onLabelChange, onBack }) {
   const [message, setMessage] = useState('')
   const [showManager, setShowManager] = useState(false)
   const [showSignatureManager, setShowSignatureManager] = useState(false)
@@ -286,11 +286,11 @@ function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket, c
       <div className="chat-header">
         <button
           className="conversations-toggle-button"
-          onClick={() => setShowConversationsList(true)}
-          title="Ver conversas"
+          onClick={onBack}
+          title="Voltar"
         >
           <svg viewBox="0 0 24 24" width="24" height="24">
-            <path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
+            <path fill="currentColor" d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" />
           </svg>
         </button>
         <div className="chat-header-info">
