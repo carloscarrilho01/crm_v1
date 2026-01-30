@@ -167,46 +167,51 @@ function App() {
         return
       }
 
-      // Verifica se está em cache e não está stale (< 5min)
-      if (conversationCache.has(userId) && !conversationCache.isStale(userId)) {
+      // OTIMIZAÇÃO 1: Mostra dados básicos da lista IMEDIATAMENTE
+      // Isso dá feedback visual instantâneo ao usuário
+      const quickPreview = {
+        ...conversation,
+        messages: conversation.messages || [],
+        totalMessages: conversation.messages?.length || 0,
+        hasMore: true
+      }
+
+      // Atualiza contador de não lidas imediatamente
+      setConversations(prev =>
+        prev.map(c => c.userId === userId ? { ...c, unread: 0 } : c)
+      )
+
+      // Verifica se está em cache e não está stale (< 3min - reduzido para cache mais fresco)
+      if (conversationCache.has(userId) && !conversationCache.isStale(userId, 3 * 60 * 1000)) {
         const cached = conversationCache.get(userId)
         setSelectedConversation(cached.data)
         setLoadingConversation(false)
-
-        // Atualiza contador de não lidas
-        setConversations(prev =>
-          prev.map(c => c.userId === userId ? { ...c, unread: 0 } : c)
-        )
         return
       }
 
-      // Mostra loading apenas se não tiver cache
-      if (!conversationCache.has(userId)) {
-        setLoadingConversation(true)
-      } else {
-        // Se tem cache mas está stale, mostra cache enquanto atualiza em background
+      // Se tem cache (mesmo stale), mostra imediatamente enquanto atualiza
+      if (conversationCache.has(userId)) {
         const cached = conversationCache.get(userId)
         setSelectedConversation(cached.data)
+        // Atualiza em background sem mostrar loading
+      } else {
+        // Sem cache: mostra preview rápido da lista e loading suave
+        setSelectedConversation(quickPreview)
+        setLoadingConversation(true)
       }
 
       // Marca como carregando
       conversationCache.setLoading(userId)
 
-      // Carrega apenas as últimas 30 mensagens inicialmente (reduzido de 50)
-      const response = await fetch(`${API_URL}/api/conversations/${userId}?limit=30&offset=0`)
+      // OTIMIZAÇÃO 2: Carrega apenas 20 mensagens inicialmente (mais rápido)
+      const response = await fetch(`${API_URL}/api/conversations/${userId}?limit=20&offset=0`)
 
       if (!response.ok) {
         console.error('Erro ao carregar conversa:', response.status)
-        // Se a conversa não existe no servidor, usa os dados básicos da lista
-        const fallbackData = {
-          ...conversation,
-          messages: conversation.messages || [],
-          totalMessages: conversation.messages?.length || 0,
-          hasMore: false
-        }
-        conversationCache.set(userId, fallbackData)
+        // Se a conversa não existe no servidor, usa os dados da preview
+        conversationCache.set(userId, quickPreview)
         conversationCache.clearLoading(userId)
-        setSelectedConversation(fallbackData)
+        setSelectedConversation(quickPreview)
         setLoadingConversation(false)
         return
       }
@@ -220,22 +225,22 @@ function App() {
       setSelectedConversation(data)
       setLoadingConversation(false)
 
-      // Atualiza o contador de não lidas
-      setConversations(prev =>
-        prev.map(c => c.userId === userId ? { ...c, unread: 0 } : c)
-      )
+      // OTIMIZAÇÃO 3: Prefetch mais inteligente - próximas 2 conversas
+      const conversationsToPreload = conversations
+        .filter(c => c.userId !== userId && !conversationCache.has(c.userId))
+        .slice(0, 2)
 
-      // Prefetch da próxima conversa (primeira na lista que não é a atual)
-      const nextConversation = conversations.find(c => c.userId !== userId)
-      if (nextConversation && !conversationCache.has(nextConversation.userId)) {
-        // Aguarda 500ms antes de fazer prefetch
+      conversationsToPreload.forEach((conv, index) => {
+        // Escalonamento: 300ms, 600ms
         setTimeout(() => {
-          fetch(`${API_URL}/api/conversations/${nextConversation.userId}?limit=30&offset=0`)
-            .then(res => res.json())
-            .then(data => conversationCache.set(nextConversation.userId, data))
-            .catch(() => {}) // Ignora erros de prefetch
-        }, 500)
-      }
+          if (!conversationCache.isLoading(conv.userId)) {
+            fetch(`${API_URL}/api/conversations/${conv.userId}?limit=20&offset=0`)
+              .then(res => res.ok ? res.json() : null)
+              .then(data => data && conversationCache.set(conv.userId, data))
+              .catch(() => {})
+          }
+        }, 300 * (index + 1))
+      })
     } catch (error) {
       console.error('Erro ao carregar conversa:', error)
       conversationCache.clearLoading(conversation.userId)

@@ -12,8 +12,8 @@ import { MessageListSkeleton, LoadingSpinner } from './SkeletonLoader'
 import './ChatWindow.css'
 import './FileUploader.css'
 
-// Componente para preview de imagem com tratamento de erro
-function ImagePreview({ src, alt }) {
+// Componente para preview de imagem com tratamento de erro (deve vir antes de MessageBubble)
+const ImagePreview = memo(function ImagePreview({ src, alt }) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [imageSrc, setImageSrc] = useState(src);
@@ -65,7 +65,58 @@ function ImagePreview({ src, alt }) {
       )}
     </div>
   );
-}
+})
+
+// Componente de Mensagem otimizado com memo para evitar re-renders
+const MessageBubble = memo(function MessageBubble({ msg, agentName }) {
+  return (
+    <div className={`message ${msg.isBot ? 'bot' : msg.isAgent ? 'agent' : 'user'}`}>
+      {msg.isAgent && agentName && (
+        <div className="agent-name-label">{agentName}</div>
+      )}
+      <div className="message-bubble">
+        {msg.type === 'audio' ? (
+          <CustomAudioPlayer
+            src={msg.audioUrl || msg.text}
+            duration={msg.duration}
+          />
+        ) : msg.type === 'file' ? (
+          <div className="message-file">
+            {msg.fileCategory === 'image' ? (
+              <ImagePreview
+                src={msg.fileUrl || msg.text}
+                alt={msg.fileName || 'Imagem'}
+              />
+            ) : (
+              <div className="message-file-document" onClick={() => window.open(msg.fileUrl || msg.text, '_blank')}>
+                <svg viewBox="0 0 24 24" width="32" height="32">
+                  <path fill="currentColor" d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+                </svg>
+                <div className="message-file-info">
+                  <span className="message-file-name">{msg.fileName}</span>
+                  <span className="message-file-size">{formatFileSize(msg.fileSize || 0)}</span>
+                </div>
+                <svg viewBox="0 0 24 24" width="24" height="24" className="message-file-download">
+                  <path fill="currentColor" d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" />
+                </svg>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="message-text">{msg.text}</div>
+        )}
+        <div className="message-time">
+          {formatMessageTime(msg.timestamp)}
+          {msg.isAgent && (
+            <svg viewBox="0 0 16 15" width="16" height="15" className="message-check">
+              <path fill="currentColor" d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"/>
+            </svg>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+})
 
 function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket, conversations, onSelectConversation, loadingConversation = false, labels = [], onManageLabels, onLabelChange }) {
   const [message, setMessage] = useState('')
@@ -293,54 +344,7 @@ function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket, c
             </div>
           )}
           {!loadingConversation && conversation?.messages?.map((msg) => (
-            <div
-              key={msg.id}
-              className={`message ${msg.isBot ? 'bot' : msg.isAgent ? 'agent' : 'user'}`}
-            >
-              {msg.isAgent && agentName && (
-                <div className="agent-name-label">{agentName}</div>
-              )}
-              <div className="message-bubble">
-                {msg.type === 'audio' ? (
-                  <CustomAudioPlayer
-                    src={msg.audioUrl || msg.text}
-                    duration={msg.duration}
-                  />
-                ) : msg.type === 'file' ? (
-                  <div className="message-file">
-                    {msg.fileCategory === 'image' ? (
-                      <ImagePreview
-                        src={msg.fileUrl || msg.text}
-                        alt={msg.fileName || 'Imagem'}
-                      />
-                    ) : (
-                      <div className="message-file-document" onClick={() => window.open(msg.fileUrl || msg.text, '_blank')}>
-                        <svg viewBox="0 0 24 24" width="32" height="32">
-                          <path fill="currentColor" d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
-                        </svg>
-                        <div className="message-file-info">
-                          <span className="message-file-name">{msg.fileName}</span>
-                          <span className="message-file-size">{formatFileSize(msg.fileSize || 0)}</span>
-                        </div>
-                        <svg viewBox="0 0 24 24" width="24" height="24" className="message-file-download">
-                          <path fill="currentColor" d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" />
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="message-text">{msg.text}</div>
-                )}
-                <div className="message-time">
-                  {formatMessageTime(msg.timestamp)}
-                  {msg.isAgent && (
-                    <svg viewBox="0 0 16 15" width="16" height="15" className="message-check">
-                      <path fill="currentColor" d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"/>
-                    </svg>
-                  )}
-                </div>
-              </div>
-            </div>
+            <MessageBubble key={msg.id} msg={msg} agentName={agentName} />
           ))}
           <div ref={messagesEndRef} />
         </div>

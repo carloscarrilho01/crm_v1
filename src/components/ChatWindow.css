@@ -340,10 +340,22 @@
   justify-content: center;
   gap: 16px;
   background: var(--bg-primary);
+  background: linear-gradient(180deg, var(--bg-primary) 0%, rgba(var(--bg-primary-rgb), 0.95) 100%);
   color: var(--text-secondary);
   font-size: 14px;
   z-index: 10;
-  animation: fadeIn 0.2s ease-out;
+  animation: fadeInFast 0.15s ease-out;
+  backdrop-filter: blur(2px);
+}
+
+/* Animação mais rápida para loading */
+@keyframes fadeInFast {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .loading-more-messages {
