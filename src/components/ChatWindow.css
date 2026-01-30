@@ -455,7 +455,7 @@
   .chat-input {
     position: relative;
     flex-shrink: 0;
-    padding-bottom: calc(70px + env(safe-area-inset-bottom)); /* Espaço para nav + safe area */
+    padding-bottom: env(safe-area-inset-bottom, 8px); /* Safe area para iPhones */
     background: var(--bg-secondary);
     border-top: 1px solid var(--border-color);
   }
@@ -485,10 +485,6 @@
 @media (max-width: 375px) {
   .chat-header {
     padding: 8px 12px;
-  }
-
-  .chat-input {
-    padding-bottom: calc(65px + env(safe-area-inset-bottom));
   }
 
   .chat-header-info h3 {
