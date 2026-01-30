@@ -292,7 +292,7 @@ function ChatWindow({ conversation, onSendMessage, onLoadMoreMessages, socket, c
               <span>Carregando mensagens anteriores...</span>
             </div>
           )}
-          {!loadingConversation && conversation.messages.map((msg) => (
+          {!loadingConversation && conversation?.messages?.map((msg) => (
             <div
               key={msg.id}
               className={`message ${msg.isBot ? 'bot' : msg.isAgent ? 'agent' : 'user'}`}

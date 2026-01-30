@@ -194,6 +194,23 @@ function App() {
 
       // Carrega apenas as últimas 30 mensagens inicialmente (reduzido de 50)
       const response = await fetch(`${API_URL}/api/conversations/${userId}?limit=30&offset=0`)
+
+      if (!response.ok) {
+        console.error('Erro ao carregar conversa:', response.status)
+        // Se a conversa não existe no servidor, usa os dados básicos da lista
+        const fallbackData = {
+          ...conversation,
+          messages: conversation.messages || [],
+          totalMessages: conversation.messages?.length || 0,
+          hasMore: false
+        }
+        conversationCache.set(userId, fallbackData)
+        conversationCache.clearLoading(userId)
+        setSelectedConversation(fallbackData)
+        setLoadingConversation(false)
+        return
+      }
+
       const data = await response.json()
 
       // Atualiza cache
