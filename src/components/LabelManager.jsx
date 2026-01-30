@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { API_URL } from '../config/api'
 import './LabelManager.css'
 
 const PRESET_COLORS = [
@@ -35,7 +36,7 @@ function LabelManager({ isOpen, onClose, labels, onLabelsChange }) {
     setError('')
 
     try {
-      const response = await fetch('/api/labels', {
+      const response = await fetch(`${API_URL}/api/labels`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newLabel)
@@ -60,7 +61,7 @@ function LabelManager({ isOpen, onClose, labels, onLabelsChange }) {
     setError('')
 
     try {
-      const response = await fetch(`/api/labels/${label.id}`, {
+      const response = await fetch(`${API_URL}/api/labels/${label.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: label.name, color: label.color })
@@ -89,7 +90,7 @@ function LabelManager({ isOpen, onClose, labels, onLabelsChange }) {
     setError('')
 
     try {
-      const response = await fetch(`/api/labels/${labelId}`, {
+      const response = await fetch(`${API_URL}/api/labels/${labelId}`, {
         method: 'DELETE'
       })
 
