@@ -1,5 +1,183 @@
 /* Mobile Navigation Styles */
 
+/* Tela Principal Mobile - Lista de Conversas */
+.mobile-main-screen {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-primary);
+  flex-direction: column;
+  z-index: 90;
+}
+
+.mobile-main-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 12px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.mobile-main-header h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.mobile-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.mobile-header-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.mobile-header-btn:hover {
+  background: var(--accent-primary);
+  color: white;
+}
+
+/* Lista de Conversas Mobile */
+.mobile-conversations-list {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 80px;
+}
+
+.mobile-loading {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.mobile-empty-state {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-empty-state svg {
+  opacity: 0.3;
+}
+
+.mobile-empty-state p {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.mobile-empty-state small {
+  font-size: 14px;
+}
+
+/* Item de Conversa Mobile */
+.mobile-conversation-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.mobile-conversation-item:hover,
+.mobile-conversation-item:active {
+  background: var(--bg-hover);
+}
+
+.mobile-conv-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.mobile-conv-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mobile-conv-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mobile-conv-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-conv-time {
+  font-size: 12px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.mobile-conv-preview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-conv-message {
+  font-size: 14px;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.mobile-conv-unread {
+  background: var(--accent-primary);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+  min-width: 22px;
+  text-align: center;
+}
+
 /* Bottom Navigation Bar */
 .mobile-bottom-nav {
   display: none;
@@ -467,6 +645,11 @@
 
 /* Responsividade */
 @media (max-width: 768px) {
+  /* Mostrar tela principal mobile */
+  .mobile-main-screen {
+    display: flex;
+  }
+
   /* Mostrar elementos mobile */
   .mobile-bottom-nav {
     display: flex;
@@ -480,13 +663,9 @@
     display: flex;
   }
 
-  /* Adicionar padding no conteúdo para compensar a bottom nav */
-  .chat-window,
-  .kanban-board-container,
-  .analytics-container,
-  .whatsapp-connection-container,
-  .product-stock-container {
-    padding-bottom: 70px;
+  /* Esconder sidebar no mobile */
+  .sidebar {
+    display: none;
   }
 }
 
