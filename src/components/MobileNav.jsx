@@ -52,8 +52,9 @@ function MobileNav({
     return name.substring(0, 2).toUpperCase()
   }, [])
 
-  // Se está em uma conversa, não mostra nada (o ChatWindow cuida)
-  if (selectedConversation) {
+  // Se está em uma conversa OU não está na view de chat, não mostra a tela principal
+  // (o ChatWindow cuida quando tem conversa, as outras views cuidam de si mesmas)
+  if (selectedConversation || currentView !== 'chat') {
     return null
   }
 
