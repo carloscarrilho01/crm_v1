@@ -8,12 +8,24 @@ const API_URL = import.meta.env.VITE_API_URL || (
     : 'http://localhost:3001'
 );
 
+// Templates do WhatsApp Business API
+const WHATSAPP_TEMPLATES = [
+  {
+    id: 'hello_world',
+    name: 'Hello World',
+    language: 'en_US',
+    category: 'Utilidade',
+    text: 'Welcome and congratulations!! This message demonstrates your ability to send a WhatsApp message notification from the Cloud API, hosted by Meta. Thank you for taking the time to test with us.',
+    hasVariables: false
+  }
+];
+
 function NewConversationModal({ onClose, onConversationCreated }) {
   const [formData, setFormData] = useState({
     userId: '',
-    userName: '',
-    initialMessage: ''
+    userName: ''
   });
+  const [selectedTemplate, setSelectedTemplate] = useState(WHATSAPP_TEMPLATES[0]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -42,7 +54,10 @@ function NewConversationModal({ onClose, onConversationCreated }) {
         body: JSON.stringify({
           userId: formData.userId.trim(),
           userName: formData.userName.trim(),
-          initialMessage: formData.initialMessage.trim() || 'Olá! Como posso ajudar?'
+          template: {
+            name: selectedTemplate.id,
+            language: selectedTemplate.language
+          }
         })
       });
 
@@ -110,18 +125,26 @@ function NewConversationModal({ onClose, onConversationCreated }) {
           </div>
 
           <div className="form-field">
-            <label htmlFor="initialMessage">
-              Mensagem Inicial (opcional)
-              <span className="field-hint">Primeira mensagem enviada ao usuário</span>
+            <label htmlFor="template">
+              Template do WhatsApp *
+              <span className="field-hint">Selecione um template aprovado</span>
             </label>
-            <textarea
-              id="initialMessage"
-              value={formData.initialMessage}
-              onChange={(e) => setFormData({ ...formData, initialMessage: e.target.value })}
-              placeholder="Ex: Olá! Como posso ajudar você hoje?"
-              rows="3"
-              disabled={loading}
-            />
+            <div className="template-selector">
+              {WHATSAPP_TEMPLATES.map((template) => (
+                <div
+                  key={template.id}
+                  className={`template-option ${selectedTemplate?.id === template.id ? 'selected' : ''}`}
+                  onClick={() => !loading && setSelectedTemplate(template)}
+                >
+                  <div className="template-header">
+                    <span className="template-name">{template.name}</span>
+                    <span className="template-language">{template.language}</span>
+                  </div>
+                  <span className="template-category">{template.category}</span>
+                  <p className="template-preview">{template.text}</p>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="modal-actions">
